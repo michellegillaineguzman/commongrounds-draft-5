@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ product.name }}</title>
+</head>
+<body>
+    <h1>{{ product.name }}</h1>
+    {% if product.product_type %}
+        <p><strong>Type:</strong> {{ product.product_type }}</p>
+    {% endif %}
+    <p><strong>Price:</strong> ${{ product.price }}</p>
+    <p><strong>Description:</strong> {{ product.description }}</p>
+    <a href="{% url 'merchstore:product-list' %}">← Back to Products</a>
+</body>
+</html>

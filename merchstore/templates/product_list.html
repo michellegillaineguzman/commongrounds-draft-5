@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Merchandise Store</title>
+</head>
+<body>
+    <h1>Merchandise Store</h1>
+    {% for product in products %}
+        <div>
+            <a href="{% url 'merchstore:product-detail' product.pk %}">{{ product.name }}</a>
+            <p>Price: ${{ product.price }}</p>
+            {% if product.product_type %}
+                <p>Type: {{ product.product_type }}</p>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>No products registered.</p>
+    {% endfor %}
+</body>
+</html>
