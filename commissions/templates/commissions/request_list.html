@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Commission Requests</title>
+  </head>
+  <body>
+    <h1>Commission Requests</h1>
+
+    {% if requests %}
+      <ul>
+        {% for r in requests %}
+          <li>
+            <a href="{% url 'commissions:request_detail' r.pk %}">
+              {{ r.title }}
+            </a>
+            — people required: {{ r.people_required }}
+            — created: {{ r.created_on }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No commission requests yet.</p>
+    {% endif %}
+  </body>
+</html>

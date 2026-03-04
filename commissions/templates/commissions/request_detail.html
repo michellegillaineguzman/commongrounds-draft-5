@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ request.title }}</title>
+  </head>
+  <body>
+    <h1>{{ request.title }}</h1>
+
+    <p><strong>People required:</strong> {{ request.people_required }}</p>
+    <p><strong>Created on:</strong> {{ request.created_on }}</p>
+    <p><strong>Updated on:</strong> {{ request.updated_on }}</p>
+
+    <h2>Description</h2>
+    <p>{{ request.description }}</p>
+
+    <p><a href="{% url 'commissions:request_list' %}">Back to list</a></p>
+  </body>
+</html>
