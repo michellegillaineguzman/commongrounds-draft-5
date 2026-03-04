@@ -3,7 +3,7 @@ from .models import Book
 
 class BookListView(ListView):
     model = Book
-    template_name = 'bookclub/genre_list.html'
+    template_name = 'bookclub/book_list.html'
     context_object_name = 'books'
 
 class BookDetailView(DetailView):
