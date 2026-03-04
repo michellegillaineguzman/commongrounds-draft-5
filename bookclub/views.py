@@ -1,11 +1,10 @@
 from django.views.generic import ListView, DetailView
 from .models import Book
 
-class GenreListView(ListView):
+class BookListView(ListView):
     model = Book
     template_name = 'bookclub/genre_list.html'
-    context_object_name = 'genres'
-
+    context_object_name = 'books'
 
 class BookDetailView(DetailView):
     model = Book
