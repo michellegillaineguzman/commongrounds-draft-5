@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>DIY Projects</title>
+    </head>
+
+    <body>
+        <h1>DIY Projects</h1>
+        {% for project in projects %}
+            <div>
+                <h2><a href="{% url 'diyprojects:project-detail' project.pk %}">{{ project.title }}</a></h2>
+                <p>{{ project.materials }}</p>
+                {% if project.project_category %}
+                    <p>Category: {{ project.category }}</p>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>No projects yet.</p>
+        {% endfor %}
+    </body>
+</html>
