@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ project.title }}</title>
+    </head>
+
+    <body>
+        <h1>{{ project.title }}</h1>
+        {% if project.category %}
+            <p><strong>Category:</strong> {{ project.category }}</p>
+        {% endif %}
+        <p><strong>Materials:</strong> {{ project.materials }}</p>
+        <p><strong>Steps:</strong> {{ project.steps }}</p>
+        <p><strong>Description:</strong> {{ project.description }}</p>
+        <p><small>Created on {{ project.created_on }} || Last updated on {{ project.updated_on }}</small></p>
+        <a href="{% url 'diyprojects:project-list' %}">← Back to Projects</a>
+    </body>
+</html>
