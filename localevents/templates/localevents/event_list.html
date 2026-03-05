@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Local Events</title>
+</head>
+<body>
+    <h1>Local Events</h1>
+    {% for event in events %}
+        <div>
+            <h2><a href="{% url 'localevents:event-detail' event.pk %}">{{ event.title }}</a></h2>
+            <p>{{ event.location }} | {{ event.start_time }} – {{ event.end_time }}</p>
+            {% if event.category %}
+                <p>Category: {{ event.category }}</p>
+            {% endif %}
+        </div>
+        <hr>
+    {% empty %}
+        <p>No events yet.</p>
+    {% endfor %}
+</body>
+</html>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ event.title }}</title>
+</head>
+<body>
+    <h1>{{ event.title }}</h1>
+    {% if event.category %}
+        <p><strong>Category:</strong> {{ event.category }}</p>
+    {% endif %}
+    <p><strong>Location:</strong> {{ event.location }}</p>
+    <p><strong>Start:</strong> {{ event.start_time }}</p>
+    <p><strong>End:</strong> {{ event.end_time }}</p>
+    <p><strong>Description:</strong> {{ event.description }}</p>
+    <p><small>Created: {{ event.created_on }} | Last updated: {{ event.updated_on }}</small></p>
+    <a href="{% url 'localevents:event-list' %}">← Back to Events</a>
+</body>
+</html>
