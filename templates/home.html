@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Common Grounds</title>
+</head>
+<body>
+    <h1>Common Grounds</h1>
+
+    <nav>
+        {% if user.is_authenticated %}
+            <p>
+                Welcome, {{ user.username }}!
+            </p>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">Logout</button>
+            </form>
+        {% else %}
+            <p>
+                <a href="{% url 'login' %}">Login</a>
+            </p>
+        {% endif %}
+    </nav>
+
+    <h2>Apps</h2>
+    <ul>
+        <li><a href="{% url 'commissions:request_list' %}">Commission Requests</a></li>
+        <li><a href="{% url 'bookclub:book_list' %}">Book Club</a></li>
+        <li><a href="{% url 'localevents:event-list' %}">Local Events</a></li>
+        <li><a href="{% url 'diyprojects:project-list' %}">DIY Projects</a></li>
+        <li><a href="{% url 'merchstore:product-list' %}">Merchandise Store</a></li>
+    </ul>
+</body>
+</html>
