@@ -23,5 +23,7 @@ urlpatterns = [
     path("commissions/", include("commissions.urls")),
     path('bookclub/', include('bookclub.urls')),
     path('localevents/', include('localevents.urls')),
-    path('merchstore/', include("merchstore.urls"))
+    path('merchstore/', include("merchstore.urls")),
+    path('accounts/', include("django.contrib.auth.urls")),
+    path('accounts/', include("accounts.urls", namespace="accounts")),
 ]
