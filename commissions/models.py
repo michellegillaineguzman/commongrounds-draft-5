@@ -34,6 +34,8 @@ class Commission(models.Model):
     maker = models.ForeignKey(
         Profile,
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
         related_name="commissions_created",
     )
     people_required = models.PositiveIntegerField(default=1)
