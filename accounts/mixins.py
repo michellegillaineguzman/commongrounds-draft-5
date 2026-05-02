@@ -5,13 +5,14 @@ class RoleRequiredMixin(LoginRequiredMixin):
     role = None
 
     def dispatch(self, request, *args, **kwargs):
-        response = super().dispatch(request, *args, **kwargs)
         if not request.user.is_authenticated:
-            return response
+            return self.handle_no_permission()
+
         try:
             profile = request.user.profile
+            if self.role and profile.role != self.role:
+                raise PermissionDenied
         except Exception:
             raise PermissionDenied
-        if self.role and profile.role != self.role:
-            raise PermissionDenied
+
         return super().dispatch(request, *args, **kwargs)

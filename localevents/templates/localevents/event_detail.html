@@ -9,24 +9,28 @@
     <p>{{ event.description }}</p>
     <p>{{ event.location }}</p>
     <p>{{ event.start_time }} - {{ event.end_time }}</p>
+    <p>Signups: {{ event.eventsignup_set.count }} / {{ event.capacity }}</p>
 
     {% if user.is_authenticated %}
-        {% if user.profile not in event.organizer.all %}
+        {% if is_organizer %}
+            <a href="{% url 'localevents:event-update' event.pk %}">Edit</a>
+        {% else %}
             <form method="post" action="{% url 'localevents:event-signup' event.pk %}">
                 {% csrf_token %}
-                <button
-                    {% if event.eventsignup_set.count >= event.capacity %}
-                        <button disabled>Full</button>
-                    {% endif %}
-                >
-                    Sign Up
+                <button type="submit" {% if is_full %}disabled{% endif %}>
+                    {% if is_full %}Full{% else %}Sign Up{% endif %}
                 </button>
             </form>
         {% endif %}
     {% else %}
-        <a href="{% url 'localevents:event-signup-form' event.pk %}">Sign Up</a>
+        {% if is_full %}
+            <button disabled>Full</button>
+        {% else %}
+            <a href="{% url 'localevents:event-signup-form' event.pk %}">Sign Up</a>
+        {% endif %}
     {% endif %}
 
-    <a href="{% url 'localevents:event-update' event.pk %}">Edit</a>
+    <a href="{% url 'localevents:event-list' %}">← Back to Events</a>
+
 </body>
 </html>

@@ -4,13 +4,18 @@
     <title>Event Sign Up</title>
 </head>
 <body>
-    <h1>Sign Up</h1>
+    <h1>Sign Up for {{ event.title }}</h1>
+
+    <p>{{ event.location }}</p>
+    <p>{{ event.start_time }} - {{ event.end_time }}</p>
 
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Submit</button>
-</form>
-</form>
+    </form>
+
+    <a href="{% url 'localevents:event-detail' event.pk %}">← Back</a>
+
 </body>
 </html>
