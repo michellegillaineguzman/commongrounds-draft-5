@@ -1,26 +1,62 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
+<head>
+    <meta charset="utf-8">
     <title>Commission Requests</title>
-  </head>
-  <body>
+</head>
+<body>
     <h1>Commission Requests</h1>
 
-    {% if requests %}
-      <ul>
-        {% for r in requests %}
-          <li>
-            <a href="{% url 'commissions:request_detail' r.pk %}">
-              {{ r.title }}
-            </a>
-            — people required: {{ r.people_required }}
-            — created: {{ r.created_on }}
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p>No commission requests yet.</p>
+    <p><a href="{% url 'home' %}">Back to Home</a></p>
+
+    {% if user.is_authenticated %}
+        <p><a href="{% url 'commissions:request_create' %}">Create Commission</a></p>
     {% endif %}
-  </body>
+
+    {% if created_commissions %}
+        <h2>Commissions You Created</h2>
+        <ul>
+            {% for commission in created_commissions %}
+                <li>
+                    <a href="{% url 'commissions:request_detail' commission.pk %}">
+                        {{ commission.title }}
+                    </a>
+                    - {{ commission.status }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if applied_commissions %}
+        <h2>Commissions You Applied To</h2>
+        <ul>
+            {% for commission in applied_commissions %}
+                <li>
+                    <a href="{% url 'commissions:request_detail' commission.pk %}">
+                        {{ commission.title }}
+                    </a>
+                    - {{ commission.status }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <h2>All Commissions</h2>
+
+    {% if all_commissions %}
+        <ul>
+            {% for commission in all_commissions %}
+                <li>
+                    <a href="{% url 'commissions:request_detail' commission.pk %}">
+                        {{ commission.title }}
+                    </a>
+                    - {{ commission.status }}
+                    - Needed: {{ commission.people_required }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No commissions available.</p>
+    {% endif %}
+</body>
 </html>
