@@ -23,7 +23,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('403/', views.permission_denied, name='permission_denied'),
     path('accounts/', include('django.contrib.auth.urls')),
-
+    path('accounts/', include('accounts.urls', namespace='accounts')),
     path('diyprojects/', include('diyprojects.urls')),
     path('commissions/', include('commissions.urls')),
     path('bookclub/', include('bookclub.urls')),
