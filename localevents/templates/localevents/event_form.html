@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Event Form</title>
+</head>
+<body>
+    <h1>{% if object %}Edit Event{% else %}Create Event{% endif %}</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+
+    <a href="{% url 'localevents:event-list' %}">Cancel</a>
+
+</body>
+</html>
