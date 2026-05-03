@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit {{ product.name }}</title>
+</head>
+<body>
+    <h1>Edit {{ product.name }}</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+
+    <a href="{{ product.get_absolute_url }}">Cancel</a>
+</body>
+</html>
