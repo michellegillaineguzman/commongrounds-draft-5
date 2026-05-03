@@ -1,19 +1,81 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <title>{{ request.title }}</title>
-  </head>
-  <body>
-    <h1>{{ request.title }}</h1>
+<head>
+    <meta charset="utf-8">
+    <title>{{ commission.title }}</title>
+</head>
+<body>
+    <p><a href="{% url 'commissions:request_list' %}">Back to Commissions</a></p>
 
-    <p><strong>People required:</strong> {{ request.people_required }}</p>
-    <p><strong>Created on:</strong> {{ request.created_on }}</p>
-    <p><strong>Updated on:</strong> {{ request.updated_on }}</p>
+    <h1>{{ commission.title }}</h1>
+
+    <p><strong>Type:</strong> {{ commission.type }}</p>
+    <p><strong>Maker:</strong> {{ commission.maker }}</p>
+    <p><strong>Status:</strong> {{ commission.status }}</p>
+    <p><strong>People Required:</strong> {{ commission.people_required }}</p>
+    <p><strong>Created On:</strong> {{ commission.created_on }}</p>
+    <p><strong>Updated On:</strong> {{ commission.updated_on }}</p>
 
     <h2>Description</h2>
-    <p>{{ request.description }}</p>
+    <p>{{ commission.description }}</p>
 
-    <p><a href="{% url 'commissions:request_list' %}">Back to list</a></p>
-  </body>
+    <h2>Manpower Summary</h2>
+    <p><strong>Total Manpower:</strong> {{ summary.total_manpower }}</p>
+    <p><strong>Open Manpower:</strong> {{ summary.open_manpower }}</p>
+
+    {% if user.is_authenticated and user.profile == commission.maker %}
+        <p><a href="{% url 'commissions:request_update' commission.pk %}">Edit Commission</a></p>
+    {% endif %}
+
+    <h2>Jobs Needed</h2>
+
+    {% if job_rows %}
+        <ul>
+            {% for row in job_rows %}
+                <li>
+                    <strong>{{ row.job.role }}</strong><br>
+                    Manpower Required: {{ row.job.manpower_required }}<br>
+                    Accepted Applications: {{ row.accepted_count }}<br>
+                    Status: {{ row.job.status }}<br>
+
+                    {% if user.is_authenticated %}
+                        {% if user.profile == commission.maker %}
+                            <p>You own this commission.</p>
+                        {% elif row.already_applied %}
+                            <p>You already applied to this job.</p>
+                        {% elif row.is_full %}
+                            <button disabled>Apply to Job</button>
+                        {% else %}
+                            <form method="post" action="{% url 'commissions:job_apply' row.job.pk %}">
+                                {% csrf_token %}
+                                <button type="submit">Apply to Job</button>
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        <p><a href="{% url 'login' %}">Log in to apply.</a></p>
+                    {% endif %}
+
+                    {% if user.is_authenticated and user.profile == commission.maker %}
+                        <h4>Applications</h4>
+                        {% if row.applications %}
+                            <ul>
+                                {% for application in row.applications %}
+                                    <li>
+                                        {{ application.applicant }} -
+                                        {{ application.status }} -
+                                        {{ application.applied_on }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No applications yet.</p>
+                        {% endif %}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No jobs listed for this commission.</p>
+    {% endif %}
+</body>
 </html>
