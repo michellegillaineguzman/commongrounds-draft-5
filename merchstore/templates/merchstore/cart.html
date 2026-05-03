@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Cart</title>
+</head>
+<body>
+    <h1>Your Cart</h1>
+
+    {% if cart_by_owner %}
+        {% for owner, transactions in cart_by_owner.items %}
+            <h2>Seller: {{ owner }}</h2>
+            {% for t in transactions %}
+                <div>
+                    <p>{{ t.product.name }} — Php{{ t.product.price }} x{{ t.amount }}</p>
+                    <p>Status: {{ t.status }}</p>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
+
+    <a href="{% url 'merchstore:product-list' %}">← Back to Products</a>
+</body>
+</html>
