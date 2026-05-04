@@ -1,0 +1,122 @@
+:root {
+    --bg: #FFF9EE;
+    --surface: #FFFBF2;
+    --border: #F0E6D0;
+
+    --text: #3D2C00;
+    --muted: #8B7340;
+
+    --gold: #FDC200;
+    --accent: #FF6B6B;
+
+    --shadow: 0 8px 25px rgba(139, 115, 64, 0.10);
+}
+
+body {
+    font-family: 'Nunito', sans-serif;
+    background-color: var(--bg);
+    background-image: url("/static/img/bg_pattern.webp");
+    background-repeat: repeat;
+    background-size: 350px;
+    color: var(--text);
+}
+
+.cg-navbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    transition: 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+.btn-primary {
+    background: var(--gold);
+    border: none;
+    color: #3D2C00;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background: #e6b100;
+}
+
+.badge {
+    border-radius: 12px;
+}
+
+.text-muted {
+    color: var(--muted) !important;
+}
+
+a {
+    text-decoration: none;
+    color: var(--gold);
+    transition: 0.2s ease;
+}
+
+a.cg-link {
+    color: var(--gold);
+    font-weight: 600;
+    position: relative;
+}
+
+a.cg-link:hover {
+    color: var(--accent);
+}
+
+a.cg-pill {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    color: var(--text);
+    font-weight: 600;
+    margin: 5px 5px 5px 0;
+    transition: 0.2s ease;
+}
+
+a.cg-pill:hover {
+    transform: translateY(-2px);
+    background: var(--gold);
+    color: #3D2C00;
+}
+
+a.cg-cta {
+    display: inline-block;
+    padding: 10px 16px;
+    border-radius: 14px;
+    background: var(--gold);
+    color: #3D2C00;
+    font-weight: 700;
+    box-shadow: var(--shadow);
+    transition: 0.2s ease;
+}
+
+a.cg-cta:hover {
+    background: #e6b100;
+    transform: translateY(-2px);
+}
+
+a.cg-soft {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 10px;
+    color: var(--muted);
+}
+
+a.cg-soft:hover {
+    background: var(--surface);
+    color: var(--text);
+}

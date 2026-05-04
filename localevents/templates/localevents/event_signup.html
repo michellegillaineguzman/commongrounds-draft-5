@@ -1,21 +1,48 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Event Sign Up</title>
-</head>
-<body>
-    <h1>Sign Up for {{ event.title }}</h1>
+{% extends "base.html" %}
 
-    <p>{{ event.location }}</p>
-    <p>{{ event.start_time }} - {{ event.end_time }}</p>
+{% block content %}
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Submit</button>
-    </form>
+<div class="container mt-4">
 
-    <a href="{% url 'localevents:event-detail' event.pk %}">← Back</a>
+    <div class="card-cg">
+        <div class="card-header-cg">
+            Sign Up for {{ event.title }}
+        </div>
 
-</body>
-</html>
+        <div class="card-body">
+
+            <div class="mb-3">
+                <span class="tag-cg"><i class="bi bi-geo-alt"></i> {{ event.location }}</span>
+                <span class="tag-cg"><i class="bi bi-clock"></i> {{ event.start_time }} - {{ event.end_time }}</span>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label-cg">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-golden">
+                    Submit
+                </button>
+            </form>
+
+            <div class="mt-3">
+                <a href="{% url 'localevents:event-detail' event.pk %}" class="cg-soft">
+                    ← Back
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

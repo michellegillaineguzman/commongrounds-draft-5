@@ -1,35 +1,109 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Common Grounds</title>
-</head>
-<body>
-    <h1>Common Grounds</h1>
+{% extends 'base.html' %}
+{% block title %}Common Grounds{% endblock %}
 
-    <nav>
-        {% if user.is_authenticated %}
-            <p>
-                Welcome, {{ user.username }}!
-            </p>
-            <form method="post" action="{% url 'logout' %}">
-                {% csrf_token %}
-                <button type="submit">Logout</button>
-            </form>
-        {% else %}
-            <p>
-                <a href="{% url 'login' %}">Login</a>
-            </p>
+{% block content %}
+<div class="page-header" style="background: linear-gradient(135deg,#FFF8EB 0%,#FFF4D6 60%,#FEE9B0 100%); padding: 3rem 0 2.5rem;">
+    <div class="container">
+        <div class="d-flex align-items-center gap-3 mb-2">
+            <div style="width:52px;height:52px;background:var(--golden);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;box-shadow:0 4px 14px rgba(253,194,0,0.3);"></div>
+            <div>
+                <h1 class="mb-0" style="font-size:2.1rem;font-weight:800;">Common Grounds</h1>
+                <p class="mb-0" style="color:var(--text-secondary);">Your local community hub: connect, share, and grow together.</p>
+            </div>
+        </div>
+
+        {% if not user.is_authenticated %}
+        <div class="mt-3 d-flex gap-2">
+            <a href="{% url 'login' %}" class="btn btn-outline-cg">Login</a>
+        </div>
         {% endif %}
-    </nav>
+    </div>
+</div>
 
-    <h2>Apps</h2>
-    <ul>
-        <li><a href="{% url 'commissions:request_list' %}">Commission Requests</a></li>
-        <li><a href="{% url 'bookclub:book_list' %}">Book Club</a></li>
-        <li><a href="{% url 'localevents:event-list' %}">Local Events</a></li>
-        <li><a href="{% url 'diyprojects:project_list' %}">DIY Projects</a></li>
-        <li><a href="{% url 'merchstore:product-list' %}">Merchandise Store</a></li>
-    </ul>
-</body>
-</html>
+<div class="container">
+    {% if user.is_authenticated %}
+    <div class="card-cg mb-4 p-3 d-flex align-items-center gap-3" style="background:linear-gradient(90deg,var(--golden-light),var(--surface));">
+        <div style="width:44px;height:44px;background:var(--golden);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;"></div>
+        <div>
+            <div class="fw-800" style="font-size:1rem;">Welcome back, {{ user.username }}!</div>
+            <div style="color:var(--text-secondary);font-size:0.85rem;">What would you like to explore today?</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="section-heading"><span class="dot"></span> Community Apps</div>
+    <div class="row g-3 mb-5">
+
+        <div class="col-sm-6 col-lg-4">
+            <a href="{% url 'commissions:request_list' %}" class="text-decoration-none">
+                <div class="card-cg p-3 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="app-icon" style="background:#FFF0D0;"></div>
+                        <div>
+                            <div class="fw-800">Commissions</div>
+                            <div class="text-muted-cg" style="font-size:0.8rem;">Post & apply for creative work</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-sm-6 col-lg-4">
+            <a href="{% url 'bookclub:book_list' %}" class="text-decoration-none">
+                <div class="card-cg p-3 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="app-icon" style="background:#E8F4FD;"></div>
+                        <div>
+                            <div class="fw-800">Book Club</div>
+                            <div class="text-muted-cg" style="font-size:0.8rem;">Borrow, review & share books</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-sm-6 col-lg-4">
+            <a href="{% url 'localevents:event-list' %}" class="text-decoration-none">
+                <div class="card-cg p-3 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="app-icon" style="background:#F0FFF0;"></div>
+                        <div>
+                            <div class="fw-800">Local Events</div>
+                            <div class="text-muted-cg" style="font-size:0.8rem;">Discover & join events near you</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-sm-6 col-lg-4">
+            <a href="{% url 'diyprojects:project_list' %}" class="text-decoration-none">
+                <div class="card-cg p-3 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="app-icon" style="background:#FFF0F0;"></div>
+                        <div>
+                            <div class="fw-800">DIY Projects</div>
+                            <div class="text-muted-cg" style="font-size:0.8rem;">Share your DIY tutorials</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-sm-6 col-lg-4">
+            <a href="{% url 'merchstore:product-list' %}" class="text-decoration-none">
+                <div class="card-cg p-3 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="app-icon" style="background:#F5F0FF;"></div>
+                        <div>
+                            <div class="fw-800">Merch Store</div>
+                            <div class="text-muted-cg" style="font-size:0.8rem;">Buy & sell community merch</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

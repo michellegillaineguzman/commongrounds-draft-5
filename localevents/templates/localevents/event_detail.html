@@ -1,36 +1,62 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ event.title }}</title>
-</head>
-<body>
-    <h1>{{ event.title }}</h1>
+{% extends "base.html" %}
 
-    <p>{{ event.description }}</p>
-    <p>{{ event.location }}</p>
-    <p>{{ event.start_time }} - {{ event.end_time }}</p>
-    <p>Signups: {{ event.eventsignup_set.count }} / {{ event.capacity }}</p>
+{% block content %}
 
-    {% if user.is_authenticated %}
-        {% if is_organizer %}
-            <a href="{% url 'localevents:event-update' event.pk %}">Edit</a>
-        {% else %}
-            <form method="post" action="{% url 'localevents:event-signup' event.pk %}">
-                {% csrf_token %}
-                <button type="submit" {% if is_full %}disabled{% endif %}>
-                    {% if is_full %}Full{% else %}Sign Up{% endif %}
-                </button>
-            </form>
-        {% endif %}
-    {% else %}
-        {% if is_full %}
-            <button disabled>Full</button>
-        {% else %}
-            <a href="{% url 'localevents:event-signup-form' event.pk %}">Sign Up</a>
-        {% endif %}
-    {% endif %}
+<div class="container mt-4">
 
-    <a href="{% url 'localevents:event-list' %}">← Back to Events</a>
+    <div class="card-cg">
+        <div class="card-header-cg">
+            {{ event.title }}
+        </div>
 
-</body>
-</html>
+        <div class="card-body">
+
+            <p class="text-secondary-cg mb-2">{{ event.description }}</p>
+
+            <div class="mb-3">
+                <span class="tag-cg"><i class="bi bi-geo-alt"></i> {{ event.location }}</span>
+                <span class="tag-cg"><i class="bi bi-clock"></i> {{ event.start_time }} - {{ event.end_time }}</span>
+            </div>
+
+            <p class="fw-600">
+                Signups: {{ event.eventsignup_set.count }} / {{ event.capacity }}
+            </p>
+
+            <hr class="divider-cg">
+
+            {% if user.is_authenticated %}
+                {% if is_organizer %}
+                    <a href="{% url 'localevents:event-update' event.pk %}" class="btn btn-outline-cg">
+                        Edit Event
+                    </a>
+                {% else %}
+                    <form method="post" action="{% url 'localevents:event-signup' event.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-golden"
+                                {% if is_full %}disabled{% endif %}>
+                            {% if is_full %}Full{% else %}Sign Up{% endif %}
+                        </button>
+                    </form>
+                {% endif %}
+            {% else %}
+                {% if is_full %}
+                    <button class="btn btn-outline-cg" disabled>Full</button>
+                {% else %}
+                    <a href="{% url 'localevents:event-signup-form' event.pk %}" class="btn btn-golden">
+                        Sign Up
+                    </a>
+                {% endif %}
+            {% endif %}
+
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a href="{% url 'localevents:event-list' %}" class="cg-soft">
+            ← Back to Events
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}
