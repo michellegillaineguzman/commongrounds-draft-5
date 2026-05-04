@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Commission Form</title>
+</head>
+<body>
+    <h1>Commission Form</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <h2>Commission Information</h2>
+        {{ form.as_p }}
+
+        <h2>Jobs</h2>
+        {{ job_formset.management_form }}
+
+        {% for job_form in job_formset %}
+            <fieldset>
+                {{ job_form.as_p }}
+            </fieldset>
+        {% endfor %}
+
+        <button type="submit">Save</button>
+    </form>
+
+    <p><a href="{% url 'commissions:request_list' %}">Back to Commissions</a></p>
+</body>
+</html>

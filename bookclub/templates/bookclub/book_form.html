@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% if book %}Edit Book{% else %}Add Book{% endif %}</title>
+    </head>
+    
+    <body>
+        <h2>{% if book %}Edit Book: {{ book.title }}{% else %}Add Book{% endif %}</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">{% if book %}Update Book{% else %}Add Book{% endif %}</button>
+        </form>
+
+        <a href="{% url 'bookclub:book_list' %}">Back to Book List</a>
+    </body>
+</html>

@@ -8,16 +8,57 @@
 
     <body>
         <h1>DIY Projects</h1>
-        {% for project in projects %}
+        
+        {% if user.is_authenticated %}
             <div>
-                <h2><a href="{% url 'diyprojects:project-detail' project.pk %}">{{ project.title }}</a></h2>
-                <p>{{ project.materials }}</p>
-                {% if project.project_category %}
-                    <p>Category: {{ project.category }}</p>
-                {% endif %}
+                <a href="{% url 'diyprojects:project_create' %}">Create New Project</a>
             </div>
-        {% empty %}
-            <p>No projects yet.</p>
-        {% endfor %}
+
+            {% if created_projects %}
+                <h2>Projects Created</h2>
+                <ul>
+                    {% for project in created_projects %}
+                        <li><a href="{% url 'diyprojects:project_detail' project.pk %}">{{ project.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if favorited_projects %}
+                <h2>Projects Favorited</h2>
+                <ul>
+                    {% for project in favorited_projects %}
+                        <li><a href="{% url 'diyprojects:project_detail' project.pk %}">{{ project.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if reviewed_projects %}
+                <h2>Projects Reviewed</h2>
+                <ul>
+                    {% for project in reviewed_projects %}
+                        <li><a href="{% url 'diyprojects:project_detail' project.pk %}">{{ project.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <h2>All Other Projects</h2>
+            <ul>
+                {% for project in all_projects %}
+                    <li><a href="{% url 'diyprojects:project_detail' project.pk %}">{{ project.title }}</a></li>
+                {% empty %}
+                    <li>No other projects found.</li>
+                {% endfor %}
+            </ul>
+
+        {% else %}
+            <h2>All Projects</h2>
+            <ul>
+                {% for project in all_projects %}
+                    <li><a href="{% url 'diyprojects:project_detail' project.pk %}">{{ project.title }}</a></li>
+                {% empty %}
+                    <li>No projects yet.</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </body>
 </html>

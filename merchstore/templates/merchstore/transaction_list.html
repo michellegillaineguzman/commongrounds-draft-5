@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sales Transactions</title>
+</head>
+<body>
+    <h1>Your Sales</h1>
+
+    {% if transactions_by_buyer %}
+        {% for buyer, transactions in transactions_by_buyer.items %}
+            <h2>Buyer: {% if buyer %}{{ buyer }}{% else %}Unknown{% endif %}</h2>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td>{{ t.product.name }}</td>
+                        <td>{{ t.amount }}</td>
+                        <td>{{ t.status }}</td>
+                        <td>{{ t.created_on|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}
+    {% else %}
+        <p>No transactions yet.</p>
+    {% endif %}
+
+    <a href="{% url 'merchstore:product-list' %}">← Back to Products</a>
+</body>
+</html>

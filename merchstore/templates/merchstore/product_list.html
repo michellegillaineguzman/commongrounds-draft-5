@@ -5,16 +5,31 @@
 </head>
 <body>
     <h1>Merchandise Store</h1>
+
+    {% if user.is_authenticated %}
+        <p><a href="{% url 'merchstore:product-create' %}">+ Add Product</a></p>
+
+        <h2>Your Products</h2>
+        {% for product in user_products %}
+            <div>
+                <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+                <p>Price: Php {{ product.price }} | Stock: {{ product.stock }} | Status: {{ product.status }}</p>
+                {% if product.product_type %}<p>Type: {{ product.product_type }}</p>{% endif %}
+            </div>
+        {% empty %}
+            <p>You have no products yet.</p>
+        {% endfor %}
+    {% endif %}
+
+    <h2>All Products</h2>
     {% for product in products %}
         <div>
-            <a href="{% url 'merchstore:product-detail' product.pk %}">{{ product.name }}</a>
-            <p>Price: ${{ product.price }}</p>
-            {% if product.product_type %}
-                <p>Type: {{ product.product_type }}</p>
-            {% endif %}
+            <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+            <p>Price: Php {{ product.price }} | Status: {{ product.status }}</p>
+            {% if product.product_type %}<p>Type: {{ product.product_type }}</p>{% endif %}
         </div>
     {% empty %}
-        <p>No products registered.</p>
+        <p>No products available.</p>
     {% endfor %}
 </body>
 </html>
