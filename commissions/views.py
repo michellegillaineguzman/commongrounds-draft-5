@@ -102,15 +102,19 @@ class CommissionDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         commission = self.object
 
+        current_profile = None
         user_applications = []
 
         if self.request.user.is_authenticated and hasattr(self.request.user, "profile"):
+            current_profile = self.request.user.profile
             user_applications = list(
                 JobApplication.objects.filter(
-                    applicant=self.request.user.profile,
+                    applicant=current_profile,
                     job__commission=commission,
                 ).values_list("job_id", flat=True)
-            )
+    )
+
+        context["current_profile"] = current_profile
 
         job_rows = []
 
@@ -120,12 +124,14 @@ class CommissionDetailView(DetailView):
             ).count()
 
             is_full = job.status == Job.STATUS_FULL or accepted_count >= job.manpower_required
+            display_status = Job.STATUS_FULL if is_full else job.status
 
             job_rows.append(
                 {
                     "job": job,
                     "accepted_count": accepted_count,
                     "is_full": is_full,
+                    "display_status": display_status,
                     "already_applied": job.id in user_applications,
                     "applications": sorted_applications(job.applications.all()),
                 }

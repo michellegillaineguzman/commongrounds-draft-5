@@ -1,30 +1,71 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Commission Form</title>
-</head>
-<body>
-    <h1>Commission Form</h1>
+{% extends "base.html" %}
 
-    <form method="post">
-        {% csrf_token %}
+{% block title %}Commission Form{% endblock %}
 
-        <h2>Commission Information</h2>
-        {{ form.as_p }}
+{% block content %}
+<div class="container mt-4">
 
-        <h2>Jobs</h2>
-        {{ job_formset.management_form }}
+    <div class="card-cg">
+        <div class="card-header-cg">
+            {% if object %}Edit Commission{% else %}Create Commission{% endif %}
+        </div>
 
-        {% for job_form in job_formset %}
-            <fieldset>
-                {{ job_form.as_p }}
-            </fieldset>
-        {% endfor %}
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
 
-        <button type="submit">Save</button>
-    </form>
+                <h2 class="section-heading">
+                    <span class="dot"></span>
+                    Commission Information
+                </h2>
 
-    <p><a href="{% url 'commissions:request_list' %}">Back to Commissions</a></p>
-</body>
-</html>
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label-cg">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <hr class="divider-cg">
+
+                <h2 class="section-heading">
+                    <span class="dot"></span>
+                    Jobs Needed
+                </h2>
+
+                {{ job_formset.management_form }}
+
+                {% for job_form in job_formset %}
+                    <div class="card-cg p-3 mb-3">
+                        {% for hidden in job_form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+
+                        {% for field in job_form.visible_fields %}
+                            <div class="mb-3">
+                                <label class="form-label-cg">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger small">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-golden">
+                    Save
+                </button>
+
+                <a href="{% url 'commissions:request_list' %}" class="btn btn-outline-cg ms-2">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,81 +1,133 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>{{ commission.title }}</title>
-</head>
-<body>
-    <p><a href="{% url 'commissions:request_list' %}">Back to Commissions</a></p>
+{% extends "base.html" %}
 
-    <h1>{{ commission.title }}</h1>
+{% block title %}{{ commission.title }}{% endblock %}
 
-    <p><strong>Type:</strong> {{ commission.type }}</p>
-    <p><strong>Maker:</strong> {{ commission.maker }}</p>
-    <p><strong>Status:</strong> {{ commission.status }}</p>
-    <p><strong>People Required:</strong> {{ commission.people_required }}</p>
-    <p><strong>Created On:</strong> {{ commission.created_on }}</p>
-    <p><strong>Updated On:</strong> {{ commission.updated_on }}</p>
+{% block content %}
+<div class="container mt-4">
 
-    <h2>Description</h2>
-    <p>{{ commission.description }}</p>
+    <div class="card-cg">
+        <div class="card-header-cg">
+            {{ commission.title }}
+        </div>
 
-    <h2>Manpower Summary</h2>
-    <p><strong>Total Manpower:</strong> {{ summary.total_manpower }}</p>
-    <p><strong>Open Manpower:</strong> {{ summary.open_manpower }}</p>
+        <div class="card-body">
+            <p class="text-secondary-cg mb-3">{{ commission.description }}</p>
 
-    {% if user.is_authenticated and user.profile == commission.maker %}
-        <p><a href="{% url 'commissions:request_update' commission.pk %}">Edit Commission</a></p>
-    {% endif %}
+            <div class="mb-3">
+                <span class="tag-cg">
+                    <i class="bi bi-briefcase"></i>
+                    {{ commission.type }}
+                </span>
 
-    <h2>Jobs Needed</h2>
+                <span class="tag-cg">
+                    <i class="bi bi-person"></i>
+                    {{ commission.maker }}
+                </span>
 
-    {% if job_rows %}
-        <ul>
-            {% for row in job_rows %}
-                <li>
-                    <strong>{{ row.job.role }}</strong><br>
-                    Manpower Required: {{ row.job.manpower_required }}<br>
-                    Accepted Applications: {{ row.accepted_count }}<br>
-                    Status: {{ row.job.status }}<br>
+                <span class="tag-cg">
+                    <i class="bi bi-circle-fill"></i>
+                    {{ commission.status }}
+                </span>
+            </div>
 
-                    {% if user.is_authenticated %}
-                        {% if user.profile == commission.maker %}
-                            <p>You own this commission.</p>
-                        {% elif row.already_applied %}
-                            <p>You already applied to this job.</p>
-                        {% elif row.is_full %}
-                            <button disabled>Apply to Job</button>
-                        {% else %}
-                            <form method="post" action="{% url 'commissions:job_apply' row.job.pk %}">
-                                {% csrf_token %}
-                                <button type="submit">Apply to Job</button>
-                            </form>
+            <div class="mb-3">
+                <p class="mb-1">
+                    <strong>People Required:</strong> {{ commission.people_required }}
+                </p>
+                <p class="mb-1">
+                    <strong>Total Manpower:</strong> {{ summary.total_manpower }}
+                </p>
+                <p class="mb-1">
+                    <strong>Open Manpower:</strong> {{ summary.open_manpower }}
+                </p>
+            </div>
+
+            {% if current_profile == commission.maker %}
+                <a href="{% url 'commissions:request_update' commission.pk %}" class="btn btn-outline-cg">
+                    Edit Commission
+                </a>
+            {% endif %}
+
+            <hr class="divider-cg">
+
+            <h2 class="section-heading">
+                <span class="dot"></span>
+                Jobs Needed
+            </h2>
+
+            {% if job_rows %}
+                {% for row in job_rows %}
+                    <div class="card-cg p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                            <div>
+                                <h3 class="mb-1" style="font-size:1.05rem;font-weight:800;">
+                                    {{ row.job.role }}
+                                </h3>
+                                <p class="mb-1 text-secondary-cg">
+                                    Manpower Required: {{ row.job.manpower_required }}
+                                </p>
+                                <p class="mb-1 text-secondary-cg">
+                                    Accepted Applications: {{ row.accepted_count }}
+                                </p>
+                                <span class="tag-cg">{{ row.display_status }}</span>
+                            </div>
+
+                            <div>
+                                {% if user.is_authenticated %}
+                                    {% if current_profile == commission.maker %}
+                                        <span class="tag-cg">You own this commission</span>
+                                    {% elif row.already_applied %}
+                                        <span class="tag-cg">Already applied</span>
+                                    {% elif row.is_full %}
+                                        <button class="btn btn-outline-cg" disabled>Full</button>
+                                    {% else %}
+                                        <form method="post" action="{% url 'commissions:job_apply' row.job.pk %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-golden">
+                                                Apply to Job
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                {% else %}
+                                    <a href="{% url 'login' %}" class="btn btn-golden">
+                                        Log in to apply
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if current_profile == commission.maker %}
+                            <hr class="divider-cg">
+
+                            <h4 style="font-size:0.95rem;font-weight:800;">Applications</h4>
+
+                            {% if row.applications %}
+                                <ul class="mb-0">
+                                    {% for application in row.applications %}
+                                        <li>
+                                            {{ application.applicant }} —
+                                            {{ application.status }} —
+                                            {{ application.applied_on }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted mb-0">No applications yet.</p>
+                            {% endif %}
                         {% endif %}
-                    {% else %}
-                        <p><a href="{% url 'login' %}">Log in to apply.</a></p>
-                    {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">No jobs listed for this commission.</p>
+            {% endif %}
+        </div>
+    </div>
 
-                    {% if user.is_authenticated and user.profile == commission.maker %}
-                        <h4>Applications</h4>
-                        {% if row.applications %}
-                            <ul>
-                                {% for application in row.applications %}
-                                    <li>
-                                        {{ application.applicant }} -
-                                        {{ application.status }} -
-                                        {{ application.applied_on }}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>No applications yet.</p>
-                        {% endif %}
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No jobs listed for this commission.</p>
-    {% endif %}
-</body>
-</html>
+    <div class="mt-3">
+        <a href="{% url 'commissions:request_list' %}" class="cg-soft">
+            ← Back to Commissions
+        </a>
+    </div>
+
+</div>
+{% endblock %}

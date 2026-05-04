@@ -29,23 +29,35 @@ class CommissionService:
         return commission
 
     @staticmethod
+    def sync_job_status(job):
+        accepted_count = job.applications.filter(
+            status=JobApplication.STATUS_ACCEPTED
+        ).count()
+
+        if accepted_count >= job.manpower_required:
+            new_status = Job.STATUS_FULL
+        else:
+            new_status = Job.STATUS_OPEN
+
+        if job.status != new_status:
+            job.status = new_status
+            job.save(update_fields=["status"])
+
+        return job
+
+    @staticmethod
     def apply_to_job(applicant, job):
+        job = CommissionService.sync_job_status(job)
+
         already_applied = JobApplication.objects.filter(
             applicant=applicant,
             job=job,
         ).exists()
 
-        accepted_count = job.applications.filter(
-            status=JobApplication.STATUS_ACCEPTED,
-        ).count()
-
         if already_applied:
             return None
 
-        if job.status == Job.STATUS_FULL or accepted_count >= job.manpower_required:
-            job.status = Job.STATUS_FULL
-            job.save()
-            CommissionService.sync_commission_status(job.commission)
+        if job.status == Job.STATUS_FULL:
             return None
 
         application = JobApplication.objects.create(
@@ -53,18 +65,24 @@ class CommissionService:
             job=job,
         )
 
+        CommissionService.sync_job_status(job)
+        CommissionService.sync_commission_status(job.commission)
+
         return application
 
     @staticmethod
     def sync_commission_status(commission):
-        jobs = commission.jobs.all()
+        jobs = list(commission.jobs.all())
 
-        if jobs.exists() and all(job.status == Job.STATUS_FULL for job in jobs):
+        for job in jobs:
+            CommissionService.sync_job_status(job)
+
+        if jobs and all(job.status == Job.STATUS_FULL for job in jobs):
             commission.status = Commission.STATUS_FULL
         else:
             commission.status = Commission.STATUS_OPEN
 
-        commission.save()
+        commission.save(update_fields=["status"])
         return commission
 
     @staticmethod
