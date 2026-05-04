@@ -6,6 +6,8 @@
 <body>
     <h1>Merchandise Store</h1>
 
+    <p><a href="{% url 'home' %}">Back to Home</a></p>
+
     {% if user.is_authenticated %}
         <p><a href="{% url 'merchstore:product-create' %}">+ Add Product</a></p>
 

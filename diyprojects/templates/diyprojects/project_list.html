@@ -9,6 +9,8 @@
     <body>
         <h1>DIY Projects</h1>
         
+        <p><a href="{% url 'home' %}">Back to Home</a></p>
+
         {% if user.is_authenticated %}
             <div>
                 <a href="{% url 'diyprojects:project_create' %}">Create New Project</a>

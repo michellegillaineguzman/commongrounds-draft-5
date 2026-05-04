@@ -15,8 +15,8 @@ class BookListView(ListView):
         if self.request.user.is_authenticated:
             profile = self.request.user.profile
             ctx['contributed'] = Book.objects.filter(contributor=profile)
-            ctx['bookmarked'] = Bookmark.objects.filter(bookmarks__profile=profile)
-            ctx['reviewed'] = BookReview.objects.filter(reviews__user_reviewer=profile)
+            ctx['bookmarked'] = Bookmark.objects.filter(profile=profile)
+            ctx['reviewed'] = BookReview.objects.filter(user_reviewer=profile)
 
             ctx['all_books']=ctx['all_books'].exclude(pk__in=ctx['contributed']).exclude(pk__in=ctx['bookmarked']).exclude(pk__in=ctx['reviewed'])
         return ctx
