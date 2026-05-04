@@ -62,6 +62,15 @@ class EventCreateView(RoleRequiredMixin, CreateView):
     template_name = 'localevents/event_form.html'
     required_role = 'Event Organizer'
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+
+        if request.user.profile.role != 'Event Organizer':
+            return redirect('permission_denied')
+
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         response = super().form_valid(form)
         self.object.organizer.add(self.request.user.profile)
