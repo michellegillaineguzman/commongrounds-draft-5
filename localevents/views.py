@@ -2,12 +2,11 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, F
 from django.views import View
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
-from django import forms
 
 from accounts.mixins import RoleRequiredMixin
-from accounts.models import Profile
 
 from .models import Event, EventSignup
+from .forms import EventForm, GuestSignupForm
 
 
 class EventListView(ListView):
@@ -20,18 +19,25 @@ class EventListView(ListView):
 
         if self.request.user.is_authenticated:
             profile = self.request.user.profile
-            
-            created = Event.objects.filter(organizer=profile).distinct()
-            signed = Event.objects.filter(eventsignup__user_registrant=profile).distinct()
 
-            all_events = Event.objects.exclude(id__in=created).exclude(id__in=signed).distinct()
+            created = Event.objects.filter(organizer=profile).distinct()
+            signed = Event.objects.filter(
+                eventsignup__user_registrant=profile
+            ).distinct()
+
+            all_events = Event.objects.exclude(
+                id__in=created
+            ).exclude(
+                id__in=signed
+            ).distinct()
 
             context['created_events'] = created
             context['signed_events'] = signed
             context['events'] = all_events
 
         return context
-    
+
+
 class EventDetailView(DetailView):
     model = Event
     template_name = 'localevents/event_detail.html'
@@ -52,16 +58,13 @@ class EventDetailView(DetailView):
 
 class EventCreateView(RoleRequiredMixin, CreateView):
     model = Event
+    form_class = EventForm
     template_name = 'localevents/event_form.html'
-    required_role = "Event Organizer"
-    fields = [
-        'title', 'category', 'image', 'description', 
-        'location', 'start_time', 'end_time', 'capacity', 'status',
-    ]
+    required_role = 'Event Organizer'
 
     def form_valid(self, form):
-        response = super().form_valid(form) 
-        self.object.organizer.add(self.request.user.profile) 
+        response = super().form_valid(form)
+        self.object.organizer.add(self.request.user.profile)
         return response
 
     def get_success_url(self):
@@ -70,19 +73,9 @@ class EventCreateView(RoleRequiredMixin, CreateView):
 
 class EventUpdateView(RoleRequiredMixin, UpdateView):
     model = Event
-    fields = [
-        'title',
-        'category',
-        'image',
-        'description',
-        'location',
-        'start_time',
-        'end_time',
-        'capacity',
-        'status',
-    ]
+    form_class = EventForm
     template_name = 'localevents/event_form.html'
-    required_role = "Event Organizer"
+    required_role = 'Event Organizer'
 
     def dispatch(self, request, *args, **kwargs):
         event = get_object_or_404(Event, pk=kwargs['pk'])
@@ -106,9 +99,7 @@ class EventUpdateView(RoleRequiredMixin, UpdateView):
         return reverse('localevents:event-detail', kwargs={'pk': self.object.pk})
 
 
-
 class BaseSignupView(View):
-    
 
     def get(self, request, pk):
         return redirect('localevents:event-detail', pk=pk)
@@ -122,7 +113,7 @@ class BaseSignupView(View):
         if not self.check_ownership(event, request.user):
             return redirect('localevents:event-detail', pk=pk)
 
-        self.create_signup(event, request)
+        self.create_signup(event, request.user)
 
         return redirect(self.get_redirect_url(event))
 
@@ -134,7 +125,7 @@ class BaseSignupView(View):
             return True
         return user.profile not in event.organizer.all()
 
-    def create_signup(self, event, request):
+    def create_signup(self, event, user):
         raise NotImplementedError
 
     def get_redirect_url(self, event):
@@ -143,21 +134,23 @@ class BaseSignupView(View):
 
 class EventSignupView(BaseSignupView):
 
-    def create_signup(self, event, request):
-        if request.user.is_authenticated:
+    def create_signup(self, event, user):
+        if user.is_authenticated:
             already_signed_up = EventSignup.objects.filter(
                 event=event,
-                user_registrant=request.user.profile
+                user_registrant=user.profile
             ).exists()
             if not already_signed_up:
                 EventSignup.objects.create(
                     event=event,
-                    user_registrant=request.user.profile
+                    user_registrant=user.profile
                 )
 
 
-class GuestSignupForm(forms.Form):
-    name = forms.CharField(max_length=255)
+class EventSignupListRedirectView(EventSignupView):
+
+    def get_redirect_url(self, event):
+        return reverse('localevents:event-list')
 
 
 class EventSignupFormView(FormView):
