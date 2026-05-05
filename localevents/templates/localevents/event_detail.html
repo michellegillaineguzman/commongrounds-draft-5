@@ -5,6 +5,18 @@
 <div class="container mt-4">
 
     <div class="card-cg">
+
+        {# Event image — square crop, sits above the card header #}
+        {% if event.image %}
+            <div style="width: 100%; aspect-ratio: 3 / 1; overflow: hidden; border-radius: 12px 12px 0 0; background: #e9e4dc;">
+                <img
+                    src="{{ event.image.url }}"
+                    alt="{{ event.title }}"
+                    style="width: 100%; height: 100%; object-fit: cover; display: block;"
+                >
+            </div>
+        {% endif %}
+
         <div class="card-header-cg">
             {{ event.title }}
         </div>
@@ -15,7 +27,16 @@
 
             <div class="mb-3">
                 <span class="tag-cg"><i class="bi bi-geo-alt"></i> {{ event.location }}</span>
-                <span class="tag-cg"><i class="bi bi-clock"></i> {{ event.start_time }} - {{ event.end_time }}</span>
+                <span class="tag-cg"><i class="bi bi-clock"></i> {{ event.start_time|date:"M d, Y · g:i A" }} – {{ event.end_time|date:"g:i A" }}</span>
+                {% if event.category %}
+                    <span class="tag-cg"><i class="bi bi-tag"></i> {{ event.category }}</span>
+                {% endif %}
+                <span class="tag-cg
+                    {% if event.status == 'Full' %}tag-full
+                    {% elif event.status == 'Cancelled' %}tag-cancelled
+                    {% elif event.status == 'Done' %}tag-done
+                    {% endif %}
+                ">{{ event.status }}</span>
             </div>
 
             <p class="fw-600">
