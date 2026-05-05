@@ -1,18 +1,41 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Event Form</title>
-</head>
-<body>
-    <h1>{% if object %}Edit Event{% else %}Create Event{% endif %}</h1>
+{% extends "base.html" %}
 
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save</button>
-    </form>
+{% block content %}
 
-    <a href="{% url 'localevents:event-list' %}">Cancel</a>
+<div class="container mt-4">
 
-</body>
-</html>
+    <div class="card-cg">
+        <div class="card-header-cg">
+            {% if object %}Edit Event{% else %}Create Event{% endif %}
+        </div>
+
+        <div class="card-body">
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label-cg">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-golden">
+                    Save
+                </button>
+
+                <a href="{% url 'localevents:event-list' %}" class="btn btn-outline-cg ms-2">
+                    Cancel
+                </a>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
