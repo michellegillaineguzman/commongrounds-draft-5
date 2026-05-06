@@ -1,57 +1,68 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>{{ book.title }}</title>
-    </head>
-    <body>
-        <h1>{{ book.title }}</h1>
-        <p> Author: {{ book.author }}</p>
-        <p> Synopsis: {{ book.synopsis }}</p>
-        <p> Genre: {{ book.genre }}</p>
-        <p> Publication Year: {{ book.publication_year }}</p>
-        <p>Status: 
-            {% if object.available_to_borrow %}
-                Available
-            {% else %}
-                Not Available
-            {% endif %}
-        </p>
-        <p> Bookmarks: {{ bookmark_count }}</p>
+{% extends "base.html" %}
 
-        <form method="post">
-            {% csrf_token %}
-            <button type="submit" name="bookmark">
-                {% if is_bookmarked %}
-                    Remove Bookmark
-                {% else %}
-                    Add Bookmark
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="card-cg">
+        <div class="card-header-cg">
+            {{ book.title }}
+        </div>
+        <div class="card-body">
+            <h2 class="section-heading"><span class="dot"></span> Details</h2>
+            <p><label class="form-label-cg">Author:</label> {{ book.author }}</p>
+            <p><label class="form-label-cg">Genre:</label> {{ book.genre }}</p>
+            <p><label class="form-label-cg">Synopsis:</label> {{ book.synopsis }}</p>
+            <p><label class="form-label-cg">Publication Year:</label> {{ book.publication_year }}</p>
+            <p><label class="form-label-cg">Status:</label> 
+                {% if book.available_to_borrow %} Available {% else %} Borrowed {% endif %}
+            </p>
+
+            <div class="mt-4 mb-4">
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" name="bookmark" class="btn btn-outline-cg">
+                        {% if is_bookmarked %}Remove Bookmark{% else %}Add Bookmark{% endif %}
+                    </button>
+                </form>
+
+                {% if book.available_to_borrow %}
+                    <a href="{% url 'bookclub:book_borrow' book.pk %}" class="btn btn-golden ms-2">Borrow This Book</a>
                 {% endif %}
-            </button>
-        </form>
 
-        {% if book.available_to_borrow %}
-            <a href="{% url 'bookclub:book_borrow' book.pk %}">Borrow this book</a>
-        {% else %}
-            <p style="color: red;">This book is currently borrowed.</p>
-        {% endif %}
+                {% if user.is_authenticated and user.bookclub_profile == book.contributor %}
+                    <a href="{% url 'bookclub:book_update' book.pk %}" class="btn btn-outline-cg ms-2">Edit Book</a>
+                {% endif %}
+            </div>
 
-        <br>
+            <hr class="divider-cg">
 
-        {% if user.is_authenticated and user.bookclub_profile == book.contributor %}
-            <a href="{% url 'bookclub:book_update' book.pk %}">Edit Book</a>
-        {% endif %}
-
-        <h4>Reviews</h4>
-        <ul>
+            <h2 class="section-heading"><span class="dot"></span> Reviews</h2>
             {% for review in book.reviews.all %}
-                <p>{{ review.content }} by {{ review.user.username }}</p>
+                <div class="mb-3 border-bottom border-secondary pb-2">
+                    <strong>{{ review.title }}</strong><br>
+                    <p class="mb-1">{{ review.comment }}</p>
+                    <small class="text-muted-cg">By: 
+                        {% if review.user_reviewer %}{{ review.user_reviewer.user.username }}
+                        {% else %}{{ review.anon_reviewer }}{% endif %}
+                    </small>
+                </div>
+            {% empty %}
+                <p class="text-muted-cg">No reviews yet.</p>
             {% endfor %}
-        </ul>
 
-        <form method="post">
-            {% csrf_token %}
-            {{ review_form.as_p }}
-            <button name="submit_review" type="submit">Submit Review</button>
-        </form>
-    </body>
-</html>
+            <h2 class="section-heading mt-5"><span class="dot"></span> Leave a Review</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {% for field in review_form %}
+                <div class="mb-3">
+                    <label class="form-label-cg">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+                <button type="submit" name="submit_review" class="btn btn-golden">Submit Review</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,22 +1,39 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Borrow Book</title>
-    </head>
+{% extends "base.html" %}
 
-    <body>
-        <h2>Borrow: {{ book.title }}</h2>
-        <p> Author: {{ book.author }}</p>
-        <p> Synopsis: {{ book.synopsis }}</p>
+{% block title %}Borrow Book{% endblock %}
 
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="card-cg">
+        <div class="card-header-cg">
+            Borrowing Request
+        </div>
+        <div class="card-body">
+            <h2 class="section-heading"><span class="dot"></span> Book Selection</h2>
+            <p><label class="form-label-cg">Title:</label> {{ book.title }}</p>
+            <p><label class="form-label-cg">Author:</label> {{ book.author }}</p>
 
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <p> Note: The return date will automatically set to 2 weeks from your borrow date.</p>
-            <button type="submit">Confirm Borrow</button>
-        </form>
+            <form method="POST">
+                {% csrf_token %}
+                <h2 class="section-heading mt-4"><span class="dot"></span> Borrowing Info</h2>
+                
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label-cg">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
 
-        <a href="{% url 'bookclub:book_detail' book.pk %}">Back to Book Details</a>
-    </body>
-</html>
+                <p class="form-text small text-muted-cg">Note: The return date is automatically set to 14 days from today.</p>
+
+                <hr class="divider-cg">
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-golden">Confirm Borrow</button>
+                    <a href="{% url 'bookclub:book_detail' book.pk %}" class="btn btn-outline-cg ms-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
