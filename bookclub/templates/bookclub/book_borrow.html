@@ -12,7 +12,7 @@
 
         <form method="post">
             {% csrf_token %}
-            {{{ form.as_p }}}
+            {{ form.as_p }}
             <p> Note: The return date will automatically set to 2 weeks from your borrow date.</p>
             <button type="submit">Confirm Borrow</button>
         </form>

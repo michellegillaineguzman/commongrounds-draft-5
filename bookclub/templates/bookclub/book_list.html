@@ -8,32 +8,38 @@
         <a href="{% url 'bookclub:book_create' %}">Contribute a Book</a>
 
         {% if user.is_authenticated %}
+        {% if contributed %}
             <h3> My Contributions</h3>
             <ul>
                 {% for book in contributed %}
-                    <li>
-                        <a href="{% url 'bookclub:book_detail' book.pk %}">{{ book.title }}</a>
-                    </li>
+                <li><a href="{% url 'bookclub:book_detail' book.pk %}">{{ book.title }}</a></li>
                 {% endfor %}
             </ul>
-
+        {% endif %}
+        {% if bookmarked %}
             <h3> My Bookmarks</h3>
             <ul>
                 {% for book in bookmarked %}
-                    <li>
-                        <a href="{% url 'bookclub:book_detail' book.pk %}">{{ book.title }}</a>
-                    </li>
+                <li><a href="{% url 'bookclub:book_detail' book.pk %}">{{ book.title }}</a></li>
                 {% endfor %}
             </ul>
-
+            {% endif %}
+            {% if reviewed %}
+                <h3> Books I've Reviewed</h3>
+                <ul>
+                    {% for book in reviewed %}
+                       <li><a href="{% url 'bookclub:book_detail' book.pk %}">{{ book.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         {% endif %}
 
         <h3> All Books</h3>
         <ul>
-            {% for book in books %}
-                <li>
-                    <a href="{% url 'bookclub:book_detail' book.pk %}">{{ book.title }}</a>
-                </li>
+            {% for book in all_books %}
+                <li><a href="{% url 'bookclub:book_detail' book.pk %}">{{ book.title }}</a></li>
+            {% empty %}
+                <li>No other books available right now.</li>
             {% endfor %}
         </ul>
     </body>

@@ -9,17 +9,35 @@
         <p> Synopsis: {{ book.synopsis }}</p>
         <p> Genre: {{ book.genre }}</p>
         <p> Publication Year: {{ book.publication_year }}</p>
-        <p> Status: {% if book.is_available %} Available {% else %} Not Available {% endif %}</p>
+        <p>Status: 
+            {% if object.available_to_borrow %}
+                Available
+            {% else %}
+                Not Available
+            {% endif %}
+        </p>
         <p> Bookmarks: {{ bookmark_count }}</p>
 
         <form method="post">
             {% csrf_token %}
-            <button type="submit" name="bookmark">{% if is_bookmarked %} Remove Bookmark {% else %} Add Bookmark {% endif %}</button>
+            <button type="submit" name="bookmark">
+                {% if is_bookmarked %}
+                    Remove Bookmark
+                {% else %}
+                    Add Bookmark
+                {% endif %}
+            </button>
         </form>
 
-        <a href="{% url 'bookclub:book_borrow' book.pk %}">Borrow this book</a>
+        {% if book.available_to_borrow %}
+            <a href="{% url 'bookclub:book_borrow' book.pk %}">Borrow this book</a>
+        {% else %}
+            <p style="color: red;">This book is currently borrowed.</p>
+        {% endif %}
 
-        {% if user.profile == book.contributor %}
+        <br>
+
+        {% if user.is_authenticated and user.bookclub_profile == book.contributor %}
             <a href="{% url 'bookclub:book_update' book.pk %}">Edit Book</a>
         {% endif %}
 
