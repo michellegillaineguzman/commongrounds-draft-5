@@ -1,7 +1,8 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Book, Bookmark, BookReview, Profile, Borrow
+from .models import Book, Bookmark, Profile, Borrow
+from accounts.models import Profile
 from .forms import BookFormFactory, BorrowForm
 from datetime import timedelta
 from django.urls import reverse_lazy
