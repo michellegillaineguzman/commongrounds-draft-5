@@ -1,75 +1,104 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{{ project.title }}</title>
-    </head>
+{% extends "base.html" %}
 
-    <body>
-        <h1>{{ project.title }}</h1>
-        
-        {% if project.category %}
-            <p><strong>Category:</strong> {{ project.category }}</p>
-        {% endif %}
-        
-        <p><strong>Creator:</strong> {{ project.creator.user.username }}</p>
-        <p><strong>Description:</strong> {{ project.description }}</p>
-        <p><strong>Materials:</strong> {{ project.materials }}</p>
-        <p><strong>Steps:</strong> {{ project.steps }}</p>
-        <p><small>Created on {{ project.created_on }} || Last updated on {{ project.updated_on }}</small></p>
-        
-        <p><strong>Average Rating:</strong> 
-            {% if average_rating %}
-                {{ average_rating|floatformat:1 }}/10
-            {% else %}
-                No ratings yet.
-            {% endif %}
-        </p>
+{% block title %}{{ project.title }}{% endblock %}
 
-        <p><strong>Favorites:</strong> {{ favorite_count }}</p>
+{% block content %}
+<div class="container mt-4">
 
-        {% if user.is_authenticated %}
-            <form action="{% url 'diyprojects:project_favorite' project.pk %}" method="POST" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit">
-                    {% if is_favorited %}Unfavorite{% else %}Favorite{% endif %}
-                </button>
-            </form>
+    <div class="card-cg mb-4">
+        <div class="card-header-cg">
+            {{ project.title }}
+        </div>
 
-            {% if project.creator == user.profile %}
-                <a href="{% url 'diyprojects:project_update' project.pk %}">Edit Project</a>
-            {% endif %}
+        <div class="card-body">
+            <p class="text-secondary-cg mb-3">{{ project.description }}</p>
 
-            <h3>Rate this Project</h3>
-            <form action="{% url 'diyprojects:project_rate' project.pk %}" method="POST">
-                {% csrf_token %}
-                {{ rating_form.as_p }}
-                <button type="submit">Submit Rating</button>
-            </form>
-
-            <h3>Review this Project</h3>
-            <form action="{% url 'diyprojects:project_review' project.pk %}" method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ review_form.as_p }}
-                <button type="submit">Submit Review</button>
-            </form>
-        {% endif %}
-
-        <hr>
-        <h2>Reviews</h2>
-        {% for review in reviews %}
-            <div>
-                <p><strong>{{ review.reviewer.user.username }}:</strong> {{ review.comment }}</p>
-                {% if review.image %}
-                    <img src="{{ review.image.url }}" alt="Review image" style="max-width: 300px;">
+            <div class="mb-4">
+                {% if project.category %}
+                    <span class="tag-cg"><i class="bi bi-tag"></i> {{ project.category.name }}</span>
                 {% endif %}
+                <span class="tag-cg"><i class="bi bi-person"></i> {{ project.creator.user.username }}</span>
+                <span class="tag-cg"><i class="bi bi-star-fill text-warning"></i> {% if average_rating %}{{ average_rating|floatformat:1 }}{% else %}N/A{% endif %}/10</span>
+                <span class="tag-cg"><i class="bi bi-heart-fill text-danger"></i> {{ favorite_count }}</span>
+                <span class="tag-cg"><i class="bi bi-calendar"></i> {{ project.created_on|date:"M d, Y" }}</span>
             </div>
-        {% empty %}
-            <p>No reviews yet.</p>
-        {% endfor %}
 
-        <br>
-        <a href="{% url 'diyprojects:project_list' %}">← Back to Projects</a>
-    </body>
-</html>
+            <p class="mb-2"><strong>Materials:</strong> {{ project.materials }}</p>
+            <p class="mb-4" style="white-space: pre-line;"><strong>Steps:</strong> {{ project.steps }}</p>
+
+            {% if user.is_authenticated %}
+                <div class="d-flex gap-2">
+                    <form action="{% url 'diyprojects:project_favorite' project.pk %}" method="POST" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn {% if is_favorited %}btn-accent{% else %}btn-golden{% endif %}">
+                            <i class="bi {% if is_favorited %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
+                            {% if is_favorited %}Unfavorite{% else %}Favorite{% endif %}
+                        </button>
+                    </form>
+
+                    {% if project.creator == user.profile %}
+                        <a href="{% url 'diyprojects:project_update' project.pk %}" class="btn btn-outline-cg">
+                            Edit Project
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <h2 class="section-heading mb-3"><span class="dot"></span> Rate</h2>
+                <div class="card-cg p-3">
+                    <form action="{% url 'diyprojects:project_rate' project.pk %}" method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label-cg">Score (1-10)</label>
+                            {{ rating_form.score }}
+                        </div>
+                        <button type="submit" class="btn btn-golden btn-sm">Submit Rating</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h2 class="section-heading mb-3"><span class="dot"></span> Review</h2>
+                <div class="card-cg p-3">
+                    <form action="{% url 'diyprojects:project_review' project.pk %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label-cg">Comment</label>
+                            {{ review_form.comment }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label-cg">Image (Optional)</label>
+                            {{ review_form.image }}
+                        </div>
+                        <button type="submit" class="btn btn-golden btn-sm">Submit Review</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <h2 class="section-heading mb-3"><span class="dot"></span> Reviews</h2>
+    {% for review in reviews %}
+        <div class="card-cg p-3 mb-3">
+            <p class="mb-1"><strong>{{ review.reviewer.user.username }}</strong></p>
+            <p class="text-secondary-cg mb-{% if review.image %}3{% else %}0{% endif %}">{{ review.comment }}</p>
+            {% if review.image %}
+                <img src="{{ review.image.url }}" alt="Review image" class="img-fluid rounded-cg" style="max-width: 200px;">
+            {% endif %}
+        </div>
+    {% empty %}
+        <p class="text-muted">No reviews yet.</p>
+    {% endfor %}
+
+    <div class="mt-4">
+        <a href="{% url 'diyprojects:project_list' %}" class="cg-soft">
+            ← Back to Projects
+        </a>
+    </div>
+
+</div>
+{% endblock %}

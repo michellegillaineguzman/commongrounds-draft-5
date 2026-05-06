@@ -1,19 +1,49 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Update Project</title>
-    </head>
-    
-    <body>
-        <h1>Update Project: {{ project.title }}</h1>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Update Project</button>
-        </form>
-        <br>
-        <a href="{% url 'diyprojects:project_detail' project.pk %}">Cancel</a>
-    </body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Update Project{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+
+    <div class="card-cg">
+        <div class="card-header-cg">
+            {% if project %}Update Project{% else %}Create Project{% endif %}
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                
+                <h2 class="section-heading">
+                    <span class="dot"></span>
+                    Project Information
+                </h2>
+
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label-cg">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <div class="form-text small text-muted-cg">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="text-danger small mt-1">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                <hr class="divider-cg">
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-golden">
+                        Update Project
+                    </button>
+                    <a href="{% url 'diyprojects:project_detail' project.pk %}" class="btn btn-outline-cg ms-2">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
