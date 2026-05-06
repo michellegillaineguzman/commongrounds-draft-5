@@ -1,17 +1,47 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Add Product</title>
-</head>
-<body>
-    <h1>Add Product</h1>
+{% extends "base.html" %}
+{% block title %}Add Product — Merch Store{% endblock %}
 
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save</button>
-    </form>
+{% block content %}
 
-    <a href="{% url 'merchstore:product-list' %}">Cancel</a>
-</body>
-</html>
+<div class="container py-4" style="max-width:640px;">
+
+    <div class="card-cg">
+        <div class="card-header-cg">
+            <i class="bi bi-plus-circle me-2"></i>Add New Product
+        </div>
+        <div class="card-body">
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="section-heading mb-3"><span class="dot"></span> Product Information</div>
+
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label-cg" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <div class="form-text small text-muted-cg mt-1">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="mt-1 small" style="color:var(--accent);">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <hr class="divider-cg">
+
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-golden">
+                        <i class="bi bi-check-lg me-1"></i> Save Product
+                    </button>
+                    <a href="{% url 'merchstore:product-list' %}" class="btn btn-outline-cg">Cancel</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

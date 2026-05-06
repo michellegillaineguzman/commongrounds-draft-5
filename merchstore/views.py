@@ -58,6 +58,18 @@ class ProductDetailView(DetailView):
         form = TransactionForm(request.POST)
 
         if form.is_valid():
+            amount = form.cleaned_data['amount']
+
+            if amount > product.stock:
+                is_owner = request.user.is_authenticated and request.user.profile == product.owner
+                form.add_error('amount', f'Only {product.stock} item(s) available in stock.')
+                return render(request, self.template_name, {
+                    'product': product,
+                    'form': form,
+                    'is_owner': is_owner,
+                    'can_buy': not is_owner and product.stock > 0,
+                })
+
             if request.user.is_authenticated:
                 strategy = AuthenticatedPurchaseStrategy()
             else:
@@ -142,6 +154,18 @@ def cart(request):
 
     return render(request, 'merchstore/cart.html', {'cart_by_owner': dict(cart_by_owner)})
 
+@login_required
+def remove_from_cart(request, pk):
+    transaction = get_object_or_404(Transaction, pk=pk, buyer=request.user.profile)
+    if request.method == 'POST':
+        # Restore stock
+        product = transaction.product
+        product.stock += transaction.amount
+        if product.status == Product.STATUS_OUT_OF_STOCK:
+            product.status = Product.STATUS_AVAILABLE
+        product.save()
+        transaction.delete()
+    return redirect('merchstore:cart')
 
 @login_required
 def transaction_list(request):

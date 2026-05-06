@@ -1,25 +1,84 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Your Cart</title>
-</head>
-<body>
-    <h1>Your Cart</h1>
+{% extends "base.html" %}
+{% block title %}My Cart — Merch Store{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div class="container">
+        <h1><i class="bi bi-cart3 me-2"></i>My Cart</h1>
+        <p>Review your items before checking out</p>
+    </div>
+</div>
+
+<div class="container" style="max-width:760px;">
 
     {% if cart_by_owner %}
         {% for owner, transactions in cart_by_owner.items %}
-            <h2>Seller: {{ owner }}</h2>
-            {% for t in transactions %}
-                <div>
-                    <p>{{ t.product.name }} — Php{{ t.product.price }} x{{ t.amount }}</p>
-                    <p>Status: {{ t.status }}</p>
+            <div class="card-cg mb-4">
+                <div class="card-header-cg">
+                    <i class="bi bi-person-circle me-2"></i>Seller: {{ owner }}
                 </div>
-            {% endfor %}
+                <div class="card-body p-0">
+                    {% for t in transactions %}
+                        <div class="list-item-cg">
+                            <div style="width:44px;height:44px;background:var(--golden-light);border-radius:10px;
+                                        display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                {% if t.product.product_image %}
+                                    <img src="{{ t.product.product_image.url }}" alt="{{ t.product.name }}"
+                                         style="width:100%;height:100%;object-fit:cover;border-radius:10px;">
+                                {% else %}
+                                    <i class="bi bi-box-seam" style="color:var(--golden-dark);"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-800" style="font-size:0.92rem;">{{ t.product.name }}</div>
+                                <div class="text-muted-cg" style="font-size:0.8rem;">
+                                    ₱{{ t.product.price }} × {{ t.amount }}
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-800" style="color:var(--golden-dark);">
+                                    ₱{% widthratio t.product.price 1 t.amount %}
+                                </div>
+                                <span class="status-badge
+                                    {% if t.status == 'Delivered' %}status-available
+                                    {% elif t.status == 'On cart' %}status-pending
+                                    {% else %}status-pending{% endif %}">
+                                    {{ t.status }}
+                                </span>
+                            </div>
+                            <form method="post" action="{% url 'merchstore:cart-remove' t.pk %}" class="ms-2">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-accent btn-sm"
+                                        onclick="return confirm('Remove this item from cart?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
         {% endfor %}
+
     {% else %}
-        <p>Your cart is empty.</p>
+        <div class="card-cg p-5 text-center">
+            <i class="bi bi-cart-x" style="font-size:3rem;color:var(--golden);opacity:0.5;"></i>
+            <p class="fw-800 mt-3 mb-1">Your cart is empty</p>
+            <p class="text-muted-cg mb-3" style="font-size:0.88rem;">Browse the store and add something you like!</p>
+            <a href="{% url 'merchstore:product-list' %}" class="btn btn-golden">
+                <i class="bi bi-shop me-1"></i> Browse Products
+            </a>
+        </div>
     {% endif %}
 
-    <a href="{% url 'merchstore:product-list' %}">← Back to Products</a>
-</body>
-</html>
+    {% if cart_by_owner %}
+        <div class="mt-2">
+            <a href="{% url 'merchstore:product-list' %}" class="cg-soft">
+                ← Continue Shopping
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

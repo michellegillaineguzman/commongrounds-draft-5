@@ -1,39 +1,80 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Sales Transactions</title>
-</head>
-<body>
-    <h1>Your Sales</h1>
+{% extends "base.html" %}
+{% block title %}Sales Transactions — Merch Store{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h1><i class="bi bi-receipt me-2"></i>Sales Transactions</h1>
+                <p>Track orders for your products</p>
+            </div>
+            <a href="{% url 'merchstore:product-list' %}" class="btn btn-outline-cg">
+                <i class="bi bi-shop me-1"></i> Back to Store
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
 
     {% if transactions_by_buyer %}
         {% for buyer, transactions in transactions_by_buyer.items %}
-            <h2>Buyer: {% if buyer %}{{ buyer }}{% else %}Unknown{% endif %}</h2>
-            <table border="1">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for t in transactions %}
-                    <tr>
-                        <td>{{ t.product.name }}</td>
-                        <td>{{ t.amount }}</td>
-                        <td>{{ t.status }}</td>
-                        <td>{{ t.created_on|date:"M d, Y H:i" }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="card-cg mb-4">
+                <div class="card-header-cg">
+                    <i class="bi bi-person-circle me-2"></i>
+                    Buyer: {% if buyer %}{{ buyer }}{% else %}Unknown{% endif %}
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-cg mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for t in transactions %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'merchstore:product-detail' t.product.pk %}"
+                                           class="fw-800" style="color:var(--text);">
+                                            {{ t.product.name }}
+                                        </a>
+                                    </td>
+                                    <td class="text-secondary-cg">× {{ t.amount }}</td>
+                                    <td>
+                                        <span class="status-badge
+                                            {% if t.status == 'Delivered' %}status-available
+                                            {% elif t.status == 'On cart' or t.status == 'To Pay' %}status-pending
+                                            {% else %}status-pending{% endif %}">
+                                            {{ t.status }}
+                                        </span>
+                                    </td>
+                                    <td class="text-muted-cg" style="font-size:0.82rem;">
+                                        {{ t.created_on|date:"M d, Y · H:i" }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
+
     {% else %}
-        <p>No transactions yet.</p>
+        <div class="card-cg p-5 text-center">
+            <i class="bi bi-receipt" style="font-size:3rem;color:var(--golden);opacity:0.5;"></i>
+            <p class="fw-800 mt-3 mb-1">No transactions yet</p>
+            <p class="text-muted-cg mb-0" style="font-size:0.88rem;">Sales will appear here once buyers purchase your products.</p>
+        </div>
     {% endif %}
 
-    <a href="{% url 'merchstore:product-list' %}">← Back to Products</a>
-</body>
-</html>
+</div>
+
+{% endblock %}
