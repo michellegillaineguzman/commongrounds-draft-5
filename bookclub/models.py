@@ -15,7 +15,7 @@ class Genre(models.Model):
 
 class Book(models.Model):
     title = models.CharField(max_length=255)
-    genre = models.ForeignKey(Genre, null=True, on_delete=models.SET_NULL, related_name='books')
+    genres = models.ManyToManyField(Genre, related_name='books',blank=True)
     contributor = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True)
     author = models.CharField(max_length=255)
     synopsis = models.TextField(null=True, blank=True)

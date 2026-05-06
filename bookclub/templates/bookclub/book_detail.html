@@ -11,9 +11,16 @@
         <div class="card-body">
             <h2 class="section-heading"><span class="dot"></span> Details</h2>
             <p><label class="form-label-cg">Author:</label> {{ book.author }}</p>
-            <p><label class="form-label-cg">Genre:</label> {{ book.genre }}</p>
+            <p><label class="form-label-cg">Genre:</label> 
+                {% for genre in book.genres.all %}
+                    {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    No genre specified
+                {% endfor %}
+            </p>
             <p><label class="form-label-cg">Synopsis:</label> {{ book.synopsis }}</p>
             <p><label class="form-label-cg">Publication Year:</label> {{ book.publication_year }}</p>
+            <p><label class="form-label-cg">Bookmarks:</label> {{ bookmark_count }}</p>
             <p><label class="form-label-cg">Status:</label> 
                 {% if book.available_to_borrow %} 
                     Available 
@@ -37,8 +44,10 @@
                     <a href="{% url 'bookclub:book_borrow' book.pk %}" class="btn btn-golden ms-2">Borrow This Book</a>
                 {% endif %}
 
-                {% if user.is_authenticated and user.bookclub_profile == book.contributor %}
-                    <a href="{% url 'bookclub:book_update' book.pk %}" class="btn btn-outline-cg ms-2">Edit Book</a>
+                {% if user.is_authenticated %}
+                    {% if user.profile == book.contributor or user.bookclub_profile == book.contributor %}
+                        <a href="{% url 'bookclub:book_update' book.pk %}" class="btn btn-outline-cg ms-2">Edit Book</a>
+                    {% endif %}
                 {% endif %}
             </div>
 
