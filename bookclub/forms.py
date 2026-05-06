@@ -21,7 +21,7 @@ class BookFormFactory:
     def get_form(cls, context):
         if context == 'review':
             return BookReviewForm
-        elif context == 'contribution':
+        elif context == 'contribute':
             return BookContributionForm
         elif context == 'update':
             return BookUpdateForm
