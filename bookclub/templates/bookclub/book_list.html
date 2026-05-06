@@ -1,46 +1,64 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Book List</title>
-    </head>
-    <body>
-        <h1>Book Club</h1>
-        <a href="{% url 'bookclub:book_create' %}">Contribute a Book</a>
+{% extends "base.html" %}
 
-        {% if user.is_authenticated %}
-        {% if contributed %}
-            <h3> My Contributions</h3>
-            <ul>
-                {% for book in contributed %}
-                <li><a href="{% url 'bookclub:book_detail' book.pk %}">{{ book.title }}</a></li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-        {% if bookmarked %}
-            <h3> My Bookmarks</h3>
-            <ul>
-                {% for book in bookmarked %}
-                <li><a href="{% url 'bookclub:book_detail' book.pk %}">{{ book.title }}</a></li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% if reviewed %}
-                <h3> Books I've Reviewed</h3>
-                <ul>
-                    {% for book in reviewed %}
-                       <li><a href="{% url 'bookclub:book_detail' book.pk %}">{{ book.title }}</a></li>
+{% block title %}Book Club - List{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="card-cg">
+        <div class="card-header-cg">
+            Book Club Library
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <a href="{% url 'bookclub:book_create' %}" class="btn btn-golden">Contribute a Book</a>
+            </div>
+
+            {% if user.is_authenticated %}
+                {% if contributed %}
+                <h2 class="section-heading"><span class="dot"></span> My Contributions</h2>
+                <ul class="list-group mb-4">
+                    {% for book in contributed %}
+                    <li class="list-group-item bg-transparent border-0 ps-0">
+                        <a href="{% url 'bookclub:book_detail' book.pk %}" class="text-decoration-none">{{ book.title }}</a>
+                    </li>
                     {% endfor %}
                 </ul>
-            {% endif %}
-        {% endif %}
+                {% endif %}
 
-        <h3> All Books</h3>
-        <ul>
-            {% for book in all_books %}
-                <li><a href="{% url 'bookclub:book_detail' book.pk %}">{{ book.title }}</a></li>
-            {% empty %}
-                <li>No other books available right now.</li>
-            {% endfor %}
-        </ul>
-    </body>
-</html>
+                {% if bookmarked %}
+                <h2 class="section-heading"><span class="dot"></span> My Bookmarks</h2>
+                <ul class="list-group mb-4">
+                    {% for book in bookmarked %}
+                    <li class="list-group-item bg-transparent border-0 ps-0">
+                        <a href="{% url 'bookclub:book_detail' book.pk %}" class="text-decoration-none">{{ book.title }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                {% if reviewed %}
+                <h2 class="section-heading"><span class="dot"></span> Books I've Reviewed</h2>
+                <ul class="list-group mb-4">
+                    {% for book in reviewed %}
+                    <li class="list-group-item bg-transparent border-0 ps-0">
+                        <a href="{% url 'bookclub:book_detail' book.pk %}" class="text-decoration-none">{{ book.title }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            {% endif %}
+
+            <h2 class="section-heading"><span class="dot"></span> All Books</h2>
+            <ul class="list-group">
+                {% for book in all_books %}
+                <li class="list-group-item bg-transparent border-0 ps-0">
+                    <a href="{% url 'bookclub:book_detail' book.pk %}" class="text-decoration-none">{{ book.title }}</a>
+                </li>
+                {% empty %}
+                <p class="text-muted-cg">No other books available right now.</p>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

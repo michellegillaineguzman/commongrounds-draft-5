@@ -1,17 +1,45 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>{% if book %}Edit Book{% else %}Add Book{% endif %}</title>
-    </head>
-    
-    <body>
-        <h2>{% if book %}Edit Book: {{ book.title }}{% else %}Add Book{% endif %}</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">{% if book %}Update Book{% else %}Add Book{% endif %}</button>
-        </form>
+{% extends "base.html" %}
 
-        <a href="{% url 'bookclub:book_list' %}">Back to Book List</a>
-    </body>
-</html>
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} Book{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="card-cg">
+        <div class="card-header-cg">
+            {% if object %}Edit Book{% else %}Create Book{% endif %}
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+
+                <h2 class="section-heading">
+                    <span class="dot"></span>
+                    Book Information
+                </h2>
+
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label-cg">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="form-text small text-muted-cg">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+
+                <hr class="divider-cg">
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-golden">
+                        {% if object %}Update Book{% else %}Save Book{% endif %}
+                    </button>
+                    <a href="{% url 'bookclub:book_list' %}" class="btn btn-outline-cg ms-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

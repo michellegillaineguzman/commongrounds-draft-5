@@ -1,10 +1,10 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Book, Bookmark, BookReview, Profile, Borrow
+from .models import Book, Bookmark, Profile
 from .forms import BookFormFactory, BorrowForm
 from datetime import timedelta
-from django.core.exceptions import ObjectDoesNotExist
+from django.urls import reverse_lazy
 
 class BookListView(ListView):
     model = Book
@@ -16,23 +16,20 @@ class BookListView(ListView):
         user = self.request.user
 
         if user.is_authenticated:
-            # Use try/except as shown in "Filtering" Slide 4 and "Data" Slide 21
-            try:
-                profile = Profile.objects.get(user=user)
-            except ObjectDoesNotExist:
-                # Manual creation as shown in "Working with Data" Slide 21
-                profile = Profile()
-                profile.user = user
+            profile, created = Profile.objects.get_or_create(user=user)
+            if created:
                 profile.role = "Book Contributor"
                 profile.save()
 
-            # Filtering using related_names defined in models (Filtering Slide 13)
-            ctx['contributed'] = Book.objects.filter(contributor=profile)
-            ctx['bookmarked'] = Book.objects.filter(bookmarks__profile=profile)
-            ctx['reviewed'] = Book.objects.filter(reviews__user_reviewer=profile).distinct()
+            contributed = Book.objects.filter(contributor=profile)
+            bookmarked = Book.objects.filter(bookmarks__profile=profile)
+            reviewed = Book.objects.filter(reviews__user_reviewer=profile).distinct()
 
-            # Using exclude() as shown in "Filtering" Slide 4
-            ctx['all_books'] = ctx['all_books']
+            ctx['contributed'] = contributed
+            ctx['bookmarked'] = bookmarked
+            ctx['reviewed'] = reviewed
+
+            ctx['all_books'] = ctx['all_books'].exclude(pk__in=contributed).exclude(pk__in=bookmarked).exclude(pk__in=reviewed)
         return ctx
 
 class BookDetailView(DetailView):
@@ -41,74 +38,72 @@ class BookDetailView(DetailView):
     
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        # Advanced Requirement: Using Factory
         ctx['review_form'] = BookFormFactory.get_form('review')()
-        # Count bookmarks (Filtering Slide 13)
         ctx['bookmark_count'] = self.object.bookmarks.count()
+        
+        ctx['is_bookmarked'] = False
+        if self.request.user.is_authenticated:
+            profile, _ = Profile.objects.get_or_create(user=self.request.user)
+            ctx['is_bookmarked'] = Bookmark.objects.filter(profile=profile, book=self.object).exists()
         return ctx
 
     def post(self, request, *args, **kwargs):
         book = self.get_object()
-        # Handling POST requests (POST Requests Slide 6/9)
-        if 'bookmark' in request.POST and request.user.is_authenticated:
-            # Logic to add bookmark
-            b = Bookmark()
-            b.profile = request.user.bookclub_profile
-            b.book = book
-            b.save()
+        if not request.user.is_authenticated:
+            return redirect('login')
+
+        profile, _ = Profile.objects.get_or_create(user=request.user)
+
+        if 'bookmark' in request.POST:
+            existing = Bookmark.objects.filter(profile=profile, book=book)
+            if existing.exists():
+                existing.delete()
+            else:
+                Bookmark.objects.create(profile=profile, book=book)
+
         elif 'submit_review' in request.POST:
             form_class = BookFormFactory.get_form('review')
             form = form_class(request.POST)
             if form.is_valid():
                 review = form.save(commit=False)
                 review.book = book
-                if request.user.is_authenticated:
-                    review.user_reviewer = request.user.bookclub_profile
-                else:
-                    review.anon_reviewer = "Anonymous"
+                review.user_reviewer = profile
                 review.save()
+        
         return redirect('bookclub:book_detail', pk=book.pk)
 
 class BookCreateView(LoginRequiredMixin, CreateView):
     model = Book
     template_name = 'bookclub/book_form.html'
-    # Hardcoded success URL (First View Slide 23)
-    success_url = '/bookclub/books/'
+    success_url = reverse_lazy('bookclub:book_list')
     
     def get_form_class(self):
         return BookFormFactory.get_form('contribute')
     
     def dispatch(self, request, *args, **kwargs):
-        # Ensure Profile exists with right role (Managing Users Slide 9)
-        try:
-            profile = request.user.bookclub_profile
-        except ObjectDoesNotExist:
-            profile = Profile()
-            profile.user = request.user
-            profile.role = "Book Contributor"
-            profile.save()
-
+        profile, _ = Profile.objects.get_or_create(user=request.user)
         if profile.role != 'Book Contributor':
-            return redirect('bookclub:book_list')
+            profile.role = 'Book Contributor'
+            profile.save()
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        # Set contributor (Working with Forms Slide 17)
-        form.instance.contributor = self.request.user.bookclub_profile
+        profile, _ = Profile.objects.get_or_create(user=self.request.user)
+        form.instance.contributor = profile
         return super().form_valid(form)
 
 class BookUpdateView(LoginRequiredMixin, UpdateView):
     model = Book
     template_name = 'bookclub/book_form.html'
-    success_url = '/bookclub/books/'
+    success_url = reverse_lazy('bookclub:book_list')
 
     def get_form_class(self):
         return BookFormFactory.get_form("update")
     
     def dispatch(self, request, *args, **kwargs):
+        profile, _ = Profile.objects.get_or_create(user=request.user)
         book = self.get_object()
-        # Permission check (Managing Users Slide 9)
-        if book.contributor != request.user.bookclub_profile:
+        if book.contributor != profile:
             return redirect('bookclub:book_list')
         return super().dispatch(request, *args, **kwargs)
 
@@ -118,25 +113,27 @@ class BookBorrowView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        # Pre-filling form (Working with Forms Slide 16)
-        initial_data = {}
-        if self.request.user.is_authenticated:
-            initial_data['name'] = self.request.user.username
+        initial_data = {'name': self.request.user.username}
         ctx['form'] = BorrowForm(initial=initial_data)
         return ctx
 
     def post(self, request, *args, **kwargs):
         book = self.get_object()
+        
+        if not book.available_to_borrow:
+            return redirect('bookclub:book_detail', pk=book.pk)
+
         form = BorrowForm(request.POST)
         if form.is_valid():
-            # Calculate and save (Working with Data Slide 14/21)
             borrow = form.save(commit=False)
             borrow.book = book
-            borrow.borrower = request.user.bookclub_profile
-            borrow.date_to_return = borrow.date_borrowed + timedelta(days=14)
+            
+            profile, _ = Profile.objects.get_or_create(user=request.user)
+            borrow.borrower = profile
+            
+            borrow.due_date = borrow.date_borrowed + timedelta(days=14)
             borrow.save()
             
-            # Update book availability
             book.available_to_borrow = False
             book.save()
             
