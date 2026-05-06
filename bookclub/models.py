@@ -1,12 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='bookclub_profile')
-    role = models.CharField(max_length=100, default='Reader')
-
-    def __str__(self):
-        return self.user.username
+from accounts.models import Profile
 
 class Genre(models.Model):
     name = models.CharField(max_length=255)
@@ -21,7 +15,7 @@ class Genre(models.Model):
 
 class Book(models.Model):
     title = models.CharField(max_length=255)
-    genre = models.ForeignKey(Genre, null=True, on_delete=models.SET_NULL, related_name='books')
+    genres = models.ManyToManyField(Genre, related_name='books',blank=True)
     contributor = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True)
     author = models.CharField(max_length=255)
     synopsis = models.TextField(null=True, blank=True)
