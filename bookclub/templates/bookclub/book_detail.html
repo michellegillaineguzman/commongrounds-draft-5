@@ -15,7 +15,14 @@
             <p><label class="form-label-cg">Synopsis:</label> {{ book.synopsis }}</p>
             <p><label class="form-label-cg">Publication Year:</label> {{ book.publication_year }}</p>
             <p><label class="form-label-cg">Status:</label> 
-                {% if book.available_to_borrow %} Available {% else %} Borrowed {% endif %}
+                {% if book.available_to_borrow %} 
+                    Available 
+                {% else %} 
+                    Borrowed 
+                    {% if current_borrow %}
+                        (Due: {{ current_borrow.due_date|date:"M d, Y" }})
+                    {% endif %}
+                {% endif %}
             </p>
 
             <div class="mt-4 mb-4">

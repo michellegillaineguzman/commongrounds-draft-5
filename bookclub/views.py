@@ -4,7 +4,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Book, Bookmark, BookReview, Profile, Borrow
 from .forms import BookFormFactory, BorrowForm
 from datetime import timedelta
-from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse_lazy
 
 class BookListView(ListView):
@@ -17,7 +16,6 @@ class BookListView(ListView):
         user = self.request.user
 
         if user.is_authenticated:
-            # Safe way to get or create profile
             profile, created = Profile.objects.get_or_create(user=user)
             if created:
                 profile.role = "Book Contributor"
@@ -31,8 +29,9 @@ class BookListView(ListView):
             ctx['bookmarked'] = bookmarked
             ctx['reviewed'] = reviewed
 
-            # Filter All Books to exclude ones you already interacted with
-            ctx['all_books'] = ctx['all_books'].exclude(pk__in=contributed).exclude(pk__in=bookmarked).exclude(pk__in=reviewed)
+            ctx['my_borrows'] = Borrow.objects.filter(borrower=profile)
+
+            ctx['all_books'] = ctx['all_books']
         return ctx
 
 class BookDetailView(DetailView):
@@ -43,8 +42,10 @@ class BookDetailView(DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx['review_form'] = BookFormFactory.get_form('review')()
         ctx['bookmark_count'] = self.object.bookmarks.count()
+
+        if not self.object.available_to_borrow:
+            ctx['current_borrow'] = Borrow.objects.filter(book=self.object).order_by('-date_borrowed').first()
         
-        # Check if bookmarked to show the right button text
         ctx['is_bookmarked'] = False
         if self.request.user.is_authenticated:
             profile, _ = Profile.objects.get_or_create(user=self.request.user)
@@ -86,7 +87,6 @@ class BookCreateView(LoginRequiredMixin, CreateView):
     
     def dispatch(self, request, *args, **kwargs):
         profile, _ = Profile.objects.get_or_create(user=request.user)
-        # Auto-set role if they are contributing
         if profile.role != 'Book Contributor':
             profile.role = 'Book Contributor'
             profile.save()
@@ -125,7 +125,6 @@ class BookBorrowView(LoginRequiredMixin, DetailView):
     def post(self, request, *args, **kwargs):
         book = self.get_object()
         
-        # Prevent borrowing if already taken
         if not book.available_to_borrow:
             return redirect('bookclub:book_detail', pk=book.pk)
 
@@ -137,11 +136,9 @@ class BookBorrowView(LoginRequiredMixin, DetailView):
             profile, _ = Profile.objects.get_or_create(user=request.user)
             borrow.borrower = profile
             
-            # FIXED: Changed date_to_return to due_date to match your model
             borrow.due_date = borrow.date_borrowed + timedelta(days=14)
             borrow.save()
             
-            # Update book availability
             book.available_to_borrow = False
             book.save()
             
