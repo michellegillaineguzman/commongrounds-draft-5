@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Book, Bookmark, BookReview, Profile, Borrow
 from .forms import BookFormFactory, BorrowForm
 from datetime import timedelta
+from django.core.exceptions import ObjectDoesNotExist
 
 class BookListView(ListView):
     model = Book
@@ -12,13 +13,21 @@ class BookListView(ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        if self.request.user.is_authenticated:
-            profile = self.request.user.profile
-            ctx['contributed'] = Book.objects.filter(contributor=profile)
-            ctx['bookmarked'] = Bookmark.objects.filter(profile=profile)
-            ctx['reviewed'] = BookReview.objects.filter(user_reviewer=profile)
+        user = self.request.user
 
-            ctx['all_books']=ctx['all_books'].exclude(pk__in=ctx['contributed']).exclude(pk__in=ctx['bookmarked']).exclude(pk__in=ctx['reviewed'])
+        if user.is_authenticated:
+            try:
+                profile = user.profile
+            except ObjectDoesNotExist:
+                profile = Profile.objects.create(user=user, role="Book Contributor")
+
+            ctx['contributed'] = Book.objects.filter(contributor=profile)
+            ctx['bookmarked'] = Book.objects.filter(bookmarks__profile=profile)
+            ctx['reviewed'] = Book.objects.filter(reviews__user_reviewer=profile).distinct()
+
+            ctx['all_books'] = ctx['all_books'].exclude(pk__in=ctx['contributed']) \
+                                               .exclude(pk__in=ctx['bookmarked']) \
+                                               .exclude(pk__in=ctx['reviewed'])
         return ctx
 
 class BookDetailView(DetailView):
@@ -51,9 +60,20 @@ class BookDetailView(DetailView):
 class BookCreateView(LoginRequiredMixin, CreateView):
     model = Book
     template_name = 'bookclub/book_form.html'
+    success_url = '/bookclub/books'
     
     def get_form_class(self):
         return BookFormFactory.get_form('contribute')
+    
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            profile = request.user.profile
+        except ObjectDoesNotExist:
+            profile = Profile.objects.create(user=request.user, role="Book Contributor")
+
+        if profile.role != 'Contributor':
+            return redirect('bookclub:book_list')
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         if self.request.user.profile.role == 'Contributor':
@@ -75,14 +95,14 @@ class BookUpdateView(LoginRequiredMixin, UpdateView):
         return super().dispatch(request, *args, **kwargs)
 
 class BookBorrowView(LoginRequiredMixin, CreateView):
-    model = Borrow
+    model = Book
     template_name = 'bookclub/book_borrow.html'
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         initial_data = {}
         if self.request.user.is_authenticated:
-            initial_data['user'] = self.request.user
+            initial_data['user'] = self.request.user.username
         ctx['form'] = BorrowForm(initial=initial_data)
         return ctx
 
