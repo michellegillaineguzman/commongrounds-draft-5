@@ -42,11 +42,17 @@ class BookUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            field.widget.attrs.update({'class': 'form-control form-control-cg'})
+            if isinstance(field.widget, forms.Select):
+                field.widget.attrs.update({'class': 'form-select form-select-cg'})
+            else:
+                field.widget.attrs.update({'class': 'form-control form-control-cg'})
 
     class Meta:
         model = Book
-        fields = ['available_to_borrow'] # Allow updates to availability
+        fields = ['title', 'author', 'genre', 'synopsis', 'publication_year', 'available_to_borrow']
+        widgets = {
+            'synopsis': forms.Textarea(attrs={'rows': 5}),
+        }
 
 class BorrowForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

@@ -108,9 +108,13 @@ class BookUpdateView(LoginRequiredMixin, UpdateView):
     
     def dispatch(self, request, *args, **kwargs):
         profile, _ = Profile.objects.get_or_create(user=request.user)
+        if profile.role != 'Book Contributor':
+            return redirect('bookclub:book_list')
+        
         book = self.get_object()
         if book.contributor != profile:
             return redirect('bookclub:book_list')
+            
         return super().dispatch(request, *args, **kwargs)
 
 class BookBorrowView(LoginRequiredMixin, DetailView):
