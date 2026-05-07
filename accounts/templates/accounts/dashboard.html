@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard · {{ user.username }}{% endblock %}
+
+{% block content %}
+
+{# ── Page Header ── #}
+<div class="page-header">
+    <div class="container">
+        <div class="d-flex align-items-center gap-3 mb-2">
+            <div style="width:52px;height:52px;background:var(--golden);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;box-shadow:0 4px 14px rgba(253,194,0,0.3);">
+                <i class="bi bi-person-fill" style="color:var(--text);"></i>
+            </div>
+            <div>
+                <h1 class="mb-0">{{ user.username }}{% if user.profile.display_name %} · {{ user.profile.display_name }}{% endif %}</h1>
+                <p class="mb-0">
+                    {% if user.profile.is_market_seller or user.profile.is_event_organizer or user.profile.is_book_contributor or user.profile.is_project_creator or user.profile.is_commission_maker %}
+                        {% if user.profile.is_market_seller %}<span class="tag-cg"><i class="bi bi-person-badge"></i> Market Seller</span>{% endif %}
+                        {% if user.profile.is_event_organizer %}<span class="tag-cg"><i class="bi bi-person-badge"></i> Event Organizer</span>{% endif %}
+                        {% if user.profile.is_book_contributor %}<span class="tag-cg"><i class="bi bi-person-badge"></i> Book Contributor</span>{% endif %}
+                        {% if user.profile.is_project_creator %}<span class="tag-cg"><i class="bi bi-person-badge"></i> Project Creator</span>{% endif %}
+                        {% if user.profile.is_commission_maker %}<span class="tag-cg"><i class="bi bi-person-badge"></i> Commission Maker</span>{% endif %}
+                    {% else %}
+                        <span class="tag-cg"><i class="bi bi-person-badge"></i> No role assigned</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="mt-3 d-flex gap-2">
+            <a href="{% url 'accounts:profile_update' user.username %}" class="btn btn-golden btn-sm">
+                <i class="bi bi-pencil me-1"></i>Edit Profile
+            </a>
+            <a href="{% url 'home' %}" class="btn btn-outline-cg btn-sm">← Home</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    {# ── Products ── #}
+    <div class="section-heading"><span class="dot"></span> My Products</div>
+
+    {% if products %}
+        <div class="row row-cols-1 row-cols-md-3 g-3 mb-3">
+            {% for product in products %}
+                <div class="col">
+                    <a href="{{ product.get_absolute_url }}" class="text-decoration-none">
+                        <div class="card-cg h-100">
+                            <div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:#e9e4dc;">
+                                {% if product.product_image %}
+                                    <img src="{{ product.product_image.url }}" alt="{{ product.name }}"
+                                         style="width:100%;height:100%;object-fit:cover;display:block;">
+                                {% else %}
+                                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#999;">
+                                        <i class="bi bi-box-seam" style="font-size:3rem;"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <div class="fw-800 mb-1" style="color:var(--text);">{{ product.name }}</div>
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span class="tag-cg"><i class="bi bi-tag"></i> Php {{ product.price }}</span>
+                                    <span class="tag-cg"><i class="bi bi-archive"></i> {{ product.stock }} left</span>
+                                    <span class="tag-cg {% if product.status == 'Out of stock' %}status-unavailable{% elif product.status == 'On sale' %}status-available{% endif %}">
+                                        {{ product.status }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
+        {# Sales table #}
+        <div class="section-heading mt-4"><span class="dot"></span> Sales</div>
+        {% if products_sold %}
+            <div class="card-cg mb-5">
+                <table class="table table-cg mb-0">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Buyer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in products_sold %}
+                            <tr>
+                                <td class="fw-800">{{ t.product.name }}</td>
+                                <td>{{ t.buyer }}</td>
+                                <td>{{ t.amount }}</td>
+                                <td><span class="tag-cg">{{ t.status }}</span></td>
+                                <td class="text-muted-cg" style="font-size:0.85rem;">{{ t.created_on|date:"M d, Y" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted-cg mb-5">No sales yet.</p>
+        {% endif %}
+
+    {% else %}
+        <p class="text-muted-cg mb-5">You have not listed any products.</p>
+    {% endif %}
+
+    <hr class="divider-cg">
+
+    {# ── Events ── #}
+    <div class="section-heading mt-4"><span class="dot"></span> My Events</div>
+    {% if events %}
+        <div class="row row-cols-1 row-cols-md-3 g-3 mb-5">
+            {% for event in events %}
+                <div class="col">
+                    <a href="{% url 'localevents:event-detail' event.pk %}" class="text-decoration-none">
+                        <div class="card-cg h-100">
+                            <div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:#e9e4dc;">
+                                {% if event.image %}
+                                    <img src="{{ event.image.url }}" alt="{{ event.title }}"
+                                         style="width:100%;height:100%;object-fit:cover;display:block;">
+                                {% else %}
+                                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#999;">
+                                        <i class="bi bi-calendar-event" style="font-size:3rem;"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <div class="fw-800 mb-1" style="color:var(--text);">{{ event.title }}</div>
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    <span class="tag-cg"><i class="bi bi-geo-alt"></i> {{ event.location }}</span>
+                                    {% if event.category %}<span class="tag-cg"><i class="bi bi-tag"></i> {{ event.category }}</span>{% endif %}
+                                    <span class="tag-cg {% if event.status == 'Full' %}status-unavailable{% elif event.status == 'Done' %}status-pending{% elif event.status == 'Cancelled' %}status-unavailable{% endif %}">
+                                        {{ event.status }}
+                                    </span>
+                                </div>
+                                <p class="text-muted-cg mb-1" style="font-size:0.83rem;"><i class="bi bi-clock"></i> {{ event.start_time|date:"M d, Y · g:i A" }}</p>
+                                <p class="text-muted-cg mb-0" style="font-size:0.83rem;"><i class="bi bi-people"></i> {{ event.eventsignup_set.count }} / {{ event.capacity }} signed up</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted-cg mb-5">You have not organized any events.</p>
+    {% endif %}
+
+    <hr class="divider-cg">
+
+    {# ── Books ── #}
+    {% if books is not None %}
+        <div class="section-heading mt-4"><span class="dot"></span> My Books</div>
+        {% if books %}
+            <div class="row row-cols-1 row-cols-md-3 g-3 mb-5">
+                {% for book in books %}
+                    <div class="col">
+                        <a href="{% url 'bookclub:book_detail' book.pk %}" class="text-decoration-none">
+                            <div class="card-cg h-100">
+                                <div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:#e9e4dc;display:flex;align-items:center;justify-content:center;">
+                                    <i class="bi bi-book" style="font-size:3rem;color:#999;"></i>
+                                </div>
+                                <div class="card-body">
+                                    <div class="fw-800 mb-1" style="color:var(--text);">{{ book.title }}</div>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <span class="tag-cg"><i class="bi bi-person"></i> {{ book.author }}</span>
+                                        <span class="tag-cg"><i class="bi bi-calendar"></i> {{ book.publication_year }}</span>
+                                        {% if book.genre %}<span class="tag-cg"><i class="bi bi-tag"></i> {{ book.genre }}</span>{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted-cg mb-5">You have not contributed any books.</p>
+        {% endif %}
+        <hr class="divider-cg">
+    {% endif %}
+
+    {# ── DIY Projects ── #}
+    <div class="section-heading mt-4"><span class="dot"></span> My DIY Projects</div>
+    {% if projects %}
+        <div class="row row-cols-1 row-cols-md-3 g-3 mb-5">
+            {% for project in projects %}
+                <div class="col">
+                    <a href="{% url 'diyprojects:project_detail' project.pk %}" class="text-decoration-none">
+                        <div class="card-cg h-100">
+                            <div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:#e9e4dc;display:flex;align-items:center;justify-content:center;">
+                                <i class="bi bi-tools" style="font-size:3rem;color:#999;"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="fw-800 mb-1" style="color:var(--text);">{{ project.title }}</div>
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    {% if project.category %}<span class="tag-cg"><i class="bi bi-tag"></i> {{ project.category }}</span>{% endif %}
+                                    <span class="tag-cg"><i class="bi bi-clock"></i> {{ project.created_on|date:"M d, Y" }}</span>
+                                </div>
+                                <p class="text-muted-cg mb-0" style="font-size:0.83rem;">{{ project.description|truncatechars:80 }}</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted-cg mb-5">You have not created any projects.</p>
+    {% endif %}
+
+    <hr class="divider-cg">
+
+    {# ── Commissions ── #}
+    <div class="section-heading mt-4"><span class="dot"></span> My Commissions</div>
+    {% if commissions %}
+        <div class="row row-cols-1 row-cols-md-3 g-3 mb-5">
+            {% for commission in commissions %}
+                <div class="col">
+                    <a href="{% url 'commissions:request_detail' commission.pk %}" class="text-decoration-none">
+                        <div class="card-cg h-100">
+                            <div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:#e9e4dc;display:flex;align-items:center;justify-content:center;">
+                                <i class="bi bi-megaphone" style="font-size:3rem;color:#999;"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="fw-800 mb-1" style="color:var(--text);">{{ commission.title }}</div>
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    {% if commission.type %}<span class="tag-cg"><i class="bi bi-tag"></i> {{ commission.type }}</span>{% endif %}
+                                    <span class="tag-cg {% if commission.status == 'Full' %}status-unavailable{% endif %}">
+                                        {{ commission.status }}
+                                    </span>
+                                </div>
+                                <p class="text-muted-cg mb-0" style="font-size:0.83rem;">{{ commission.description|truncatechars:80 }}</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted-cg mb-5">You have not created any commissions.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

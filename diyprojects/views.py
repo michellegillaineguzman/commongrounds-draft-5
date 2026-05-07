@@ -69,7 +69,7 @@ class ProjectDetailView(DetailView):
         return context
 
 class ProjectCreateView(RoleRequiredMixin, CreateView):
-    role = 'Project Creator'
+    required_role = 'Project Creator'
     model = Project
     form_class = ProjectForm
     template_name = 'diyprojects/project_create.html'
@@ -88,7 +88,7 @@ class ProjectCreateView(RoleRequiredMixin, CreateView):
         return reverse('diyprojects:project_detail', kwargs={'pk': self.object.pk})
 
 class ProjectUpdateView(RoleRequiredMixin, UpdateView):
-    role = 'Project Creator'
+    required_role = 'Project Creator'
     model = Project
     form_class = ProjectForm
     template_name = 'diyprojects/project_update.html'

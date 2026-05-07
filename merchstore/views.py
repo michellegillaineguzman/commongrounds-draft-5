@@ -87,7 +87,7 @@ class ProductDetailView(DetailView):
 
 @login_required
 def product_create(request):
-    if not hasattr(request.user, 'profile') or request.user.profile.role != 'Market Seller':
+    if not hasattr(request.user, 'profile') or not request.user.profile.has_role('Market Seller'):
         return redirect('permission_denied')
 
     if request.method == 'POST':
@@ -107,7 +107,7 @@ def product_create(request):
 def product_update(request, pk):
     product = get_object_or_404(Product, pk=pk)
 
-    if not hasattr(request.user, 'profile') or request.user.profile.role != 'Market Seller':
+    if not hasattr(request.user, 'profile') or not request.user.profile.has_role('Market Seller'):
         return redirect('permission_denied')
 
     if request.method == 'POST':

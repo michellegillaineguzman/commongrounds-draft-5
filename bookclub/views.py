@@ -82,8 +82,8 @@ class BookCreateView(LoginRequiredMixin, CreateView):
     
     def dispatch(self, request, *args, **kwargs):
         profile, _ = Profile.objects.get_or_create(user=request.user)
-        if profile.role != 'Book Contributor':
-            profile.role = 'Book Contributor'
+        if not profile.has_role('Book Contributor'):
+            profile.is_book_contributor = True
             profile.save()
         return super().dispatch(request, *args, **kwargs)
 

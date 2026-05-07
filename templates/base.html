@@ -370,6 +370,9 @@
             </ul>
             <div class="d-flex align-items-center gap-2">
                 {% if user.is_authenticated %}
+                    <a href="{% url 'accounts:dashboard' %}" class="nav-badge" style="text-decoration:none;">
+                        <i class="bi bi-grid"></i> Dashboard
+                    </a>
                     <span class="nav-badge"><i class="bi bi-person-fill"></i> {{ user.username }}</span>
                     <form method="post" action="{% url 'logout' %}" class="d-inline m-0">
                         {% csrf_token %}

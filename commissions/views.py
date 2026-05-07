@@ -22,8 +22,8 @@ JobFormSet = inlineformset_factory(
 def user_is_commission_maker(user):
     return (
         user.is_authenticated
-        and hasattr(user, "profile")
-        and getattr(user.profile, "role", None) == "Commission Maker"
+        and hasattr(user, 'profile')
+        and user.profile.has_role('Commission Maker')
     )
 
 

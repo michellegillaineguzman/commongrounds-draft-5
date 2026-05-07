@@ -3,35 +3,30 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 class Profile(models.Model):
-    MARKET_SELLER = 'Market Seller'
-    EVENT_ORGANIZER = 'Event Organizer'
-    BOOK_CONTRIBUTOR = 'Book Contributor'
-    PROJECT_CREATOR = 'Project Creator'
-    COMMISSION_MAKER = 'Commission Maker'
-
-    ROLE_CHOICES = [
-        (MARKET_SELLER, 'Market Seller'),
-        (EVENT_ORGANIZER, 'Event Organizer'),
-        (BOOK_CONTRIBUTOR, 'Book Contributor'),
-        (PROJECT_CREATOR, 'Project Creator'),
-        (COMMISSION_MAKER, 'Commission Maker'),
-    ]
-
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     display_name = models.CharField(max_length=63, blank=True)
     email = models.EmailField()
-    role = models.CharField(max_length=63, choices=ROLE_CHOICES, blank=True, default='')
+    is_market_seller = models.BooleanField(default=False)
+    is_event_organizer = models.BooleanField(default=False)
+    is_book_contributor = models.BooleanField(default=False)
+    is_project_creator = models.BooleanField(default=False)
+    is_commission_maker = models.BooleanField(default=False)
+
+    def has_role(self, role_name):
+        mapping = {
+            'Market Seller': self.is_market_seller,
+            'Event Organizer': self.is_event_organizer,
+            'Book Contributor': self.is_book_contributor,
+            'Project Creator': self.is_project_creator,
+            'Commission Maker': self.is_commission_maker,
+        }
+        return mapping.get(role_name, False)
 
     def __str__(self):
         return self.user.username
 
     def get_absolute_url(self):
-        return reverse('profile_detail', args=[str(self.id)])
+        return reverse('accounts:profile_detail', args=[self.user.username])
     
     class Meta:
         ordering = ['display_name']
-
-    def __str__(self):
-        return self.user.username
-    def get_absolute_url(self):
-        return reverse('accounts:profile_detail', args=[self.user.username])
