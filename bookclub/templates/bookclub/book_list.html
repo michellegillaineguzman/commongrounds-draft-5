@@ -7,13 +7,12 @@
     <a href="{% url 'home' %}" class="cg-soft">← Back to Home</a>
 
     <div class="mt-3 mb-4">
-        {% if user.is_authenticated and user.profile.role == 'Book Contributor' %}
+        {% if user.is_authenticated and user.profile.is_book_contributor %}
             <a href="{% url 'bookclub:book_create' %}" class="cg-cta">+ Contribute a Book</a>
         {% endif %}
     </div>
 
     {% if user.is_authenticated %}
-
         {% if contributed %}
             <h2 class="mt-4 mb-3">Your Contributions</h2>
             <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
@@ -57,7 +56,6 @@
                 {% endfor %}
             </div>
         {% endif %}
-
     {% endif %}
 
     <h2 class="mt-4 mb-3">All Books</h2>
@@ -82,7 +80,7 @@
             {% endfor %}
         </div>
     {% else %}
-        <p class="text-muted">No books available right now.</p>
+        <p class="text-muted">No other books available.</p>
     {% endif %}
 
 </div>
