@@ -1,37 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %}Borrow Book{% endblock %}
-
 {% block content %}
-<div class="container mt-4 mb-5">
+<div class="container mt-4">
     <div class="card-cg">
-        <div class="card-header-cg">
-            Borrowing Request
-        </div>
+        <div class="card-header-cg">Borrow: {{ book.title }}</div>
         <div class="card-body">
-            <h2 class="section-heading"><span class="dot"></span> Book Selection</h2>
-            <p><label class="form-label-cg">Title:</label> {{ book.title }}</p>
-            <p><label class="form-label-cg">Author:</label> {{ book.author }}</p>
-
-            <form method="POST">
-                {% csrf_token %}
-                <h2 class="section-heading mt-4"><span class="dot"></span> Borrowing Info</h2>
-                
+            <div class="mb-3">
+                <span class="tag-cg"><i class="bi bi-person"></i> {{ book.author }}</span>
+            </div>
+            <p class="text-muted">Confirm your details to borrow this book.</p>
+            <form method="post">{% csrf_token %}
                 {% for field in form %}
-                <div class="mb-3">
-                    <label class="form-label-cg">{{ field.label }}</label>
-                    {{ field }}
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label-cg">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
                 {% endfor %}
-
-                <p class="form-text small text-muted-cg">Note: The return date is automatically set to 14 days from today.</p>
-
-                <hr class="divider-cg">
-
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-golden">Confirm Borrow</button>
-                    <a href="{% url 'bookclub:book_detail' book.pk %}" class="btn btn-outline-cg ms-2">Cancel</a>
+                <div class="alert alert-info py-2 small" style="background: #fdfaf3; border: 1px solid #e9e4dc; color: #3b2f2f;">
+                    <i class="bi bi-info-circle"></i> Note: Return date is 14 days from the borrow date.
                 </div>
+                <button type="submit" class="btn btn-golden">Confirm Borrow</button>
+                <a href="{% url 'bookclub:book_detail' book.pk %}" class="btn btn-outline-cg ms-2">Cancel</a>
             </form>
         </div>
     </div>
