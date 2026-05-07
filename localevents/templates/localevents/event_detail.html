@@ -1,82 +1,119 @@
 {% extends "base.html" %}
+{% block title %}{{ event.title }} — Local Events{% endblock %}
 
 {% block content %}
 
-<div class="container mt-4">
+<div class="container py-4" style="max-width:860px;">
 
-    <div class="card-cg">
+    <div class="card-cg mb-4">
 
-        {# Event image — square crop, sits above the card header #}
         {% if event.image %}
-            <div style="width: 100%; aspect-ratio: 3 / 1; overflow: hidden; border-radius: 12px 12px 0 0; background: #e9e4dc;">
-                <img
-                    src="{{ event.image.url }}"
-                    alt="{{ event.title }}"
-                    style="width: 100%; height: 100%; object-fit: cover; display: block;"
-                >
+            <div style="aspect-ratio:16/7;overflow:hidden;border-radius:14px 14px 0 0;">
+                <img src="{{ event.image.url }}"
+                     alt="{{ event.title }}"
+                     style="width:100%;height:100%;object-fit:cover;display:block;">
             </div>
         {% endif %}
 
-        <div class="card-header-cg">
-            {{ event.title }}
+        <div class="card-header-cg d-flex align-items-center justify-content-between flex-wrap gap-2">
+
+            <span>{{ event.title }}</span>
+
+            <span class="status-badge
+                {% if event.status == 'Done' %}status-available
+                {% elif event.status == 'Full' %}status-unavailable
+                {% else %}status-pending{% endif %}">
+                {{ event.status }}
+            </span>
+
         </div>
 
         <div class="card-body">
 
-            <p class="text-secondary-cg mb-2">{{ event.description }}</p>
+            <div class="d-flex flex-wrap gap-2 mb-3">
 
-            <div class="mb-3">
-                <span class="tag-cg"><i class="bi bi-geo-alt"></i> {{ event.location }}</span>
-                <span class="tag-cg"><i class="bi bi-clock"></i> {{ event.start_time|date:"M d, Y · g:i A" }} – {{ event.end_time|date:"g:i A" }}</span>
+                <span class="tag-cg">
+                    <i class="bi bi-geo-alt"></i> {{ event.location }}
+                </span>
+
+                <span class="tag-cg">
+                    <i class="bi bi-clock"></i>
+                    {{ event.start_time|date:"M d, Y · g:i A" }}
+                </span>
+
                 {% if event.category %}
-                    <span class="tag-cg"><i class="bi bi-tag"></i> {{ event.category }}</span>
+                    <span class="tag-cg">
+                        <i class="bi bi-tag"></i> {{ event.category }}
+                    </span>
                 {% endif %}
-                <span class="tag-cg
-                    {% if event.status == 'Full' %}tag-full
-                    {% elif event.status == 'Cancelled' %}tag-cancelled
-                    {% elif event.status == 'Done' %}tag-done
-                    {% endif %}
-                ">{{ event.status }}</span>
+
+                <span class="tag-cg">
+                    <i class="bi bi-people"></i>
+                    {{ event.eventsignup_set.count }} / {{ event.capacity }}
+                </span>
+
             </div>
 
-            <p class="fw-600">
-                Signups: {{ event.eventsignup_set.count }} / {{ event.capacity }}
+            <p class="text-secondary-cg mb-4">
+                {{ event.description }}
             </p>
 
             <hr class="divider-cg">
 
             {% if user.is_authenticated %}
+
                 {% if is_organizer %}
-                    <a href="{% url 'localevents:event-update' event.pk %}" class="btn btn-outline-cg">
-                        Edit Event
-                    </a>
+
+                    <div class="d-flex gap-2 align-items-center">
+
+                        <a href="{% url 'localevents:event-update' event.pk %}"
+                           class="btn btn-outline-cg">
+                            <i class="bi bi-pencil me-1"></i> Edit Event
+                        </a>
+
+                        <span class="text-muted-cg" style="font-size:0.82rem;">
+                            This is your event.
+                        </span>
+
+                    </div>
+
                 {% else %}
+
                     <form method="post" action="{% url 'localevents:event-signup' event.pk %}">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-golden"
+
+                        <button type="submit"
+                                class="btn btn-golden"
                                 {% if is_full %}disabled{% endif %}>
-                            {% if is_full %}Full{% else %}Sign Up{% endif %}
+
+                            {% if is_full %}
+                                <i class="bi bi-x-circle me-1"></i> Full
+                            {% else %}
+                                <i class="bi bi-check-circle me-1"></i> Sign Up
+                            {% endif %}
+
                         </button>
+
                     </form>
+
                 {% endif %}
+
             {% else %}
-                {% if is_full %}
-                    <button class="btn btn-outline-cg" disabled>Full</button>
-                {% else %}
-                    <a href="{% url 'localevents:event-signup-form' event.pk %}" class="btn btn-golden">
-                        Sign Up
-                    </a>
-                {% endif %}
+
+                <a href="{% url 'localevents:event-signup-form' event.pk %}"
+                   class="btn btn-golden">
+                    <i class="bi bi-check-circle me-1"></i> Sign Up
+                </a>
+
             {% endif %}
 
         </div>
+
     </div>
 
-    <div class="mt-3">
-        <a href="{% url 'localevents:event-list' %}" class="cg-soft">
-            ← Back to Events
-        </a>
-    </div>
+    <a href="{% url 'localevents:event-list' %}" class="cg-soft">
+        ← Back to Events
+    </a>
 
 </div>
 
