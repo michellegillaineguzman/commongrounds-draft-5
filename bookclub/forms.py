@@ -15,11 +15,17 @@ class BookReviewForm(StyledModelForm):
         model = BookReview
         fields = ['title', 'comment', 'anon_reviewer']
         widgets = {
-            'comment': forms.Textarea(attrs={'rows': 3}),
+            'title': forms.TextInput(attrs={'placeholder': 'Review Title'}),
+            'comment': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Share your thoughts...'}),
+            'anon_reviewer': forms.TextInput(attrs={'placeholder': 'Optional: Anonymous Name'}),
         }
 
 class BookContributionForm(StyledModelForm):
-    new_genres = forms.CharField(required=False, label="Add New Genres")
+    new_genres = forms.CharField(
+        required=False, 
+        label="Add New Genres",
+        widget=forms.TextInput(attrs={'placeholder': 'e.g. Mystery, Sci-Fi'})
+    )
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,8 +36,10 @@ class BookContributionForm(StyledModelForm):
         model = Book
         fields = ['title', 'author', 'genres', 'new_genres', 'synopsis', 'publication_year', 'available_to_borrow']
         widgets = {
+            'title': forms.TextInput(attrs={'placeholder': 'e.g. The Great Gatsby'}),
+            'author': forms.TextInput(attrs={'placeholder': 'e.g. F. Scott Fitzgerald'}),
             'genres': forms.SelectMultiple(),
-            'synopsis': forms.Textarea(attrs={'rows': 4}),
+            'synopsis': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Briefly describe the story...'}),
             'publication_year': forms.NumberInput(attrs={'placeholder': 'YYYY'}),
         }
 
@@ -43,6 +51,7 @@ class BorrowForm(StyledModelForm):
         model = Borrow
         fields = ['name', 'date_borrowed']
         widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Your Full Name'}),
             'date_borrowed': forms.DateInput(attrs={'type': 'date'}),
         }
 
