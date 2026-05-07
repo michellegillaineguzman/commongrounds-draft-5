@@ -1,11 +1,15 @@
 {% extends "base.html" %}
+{% block title %}
+    {% if object %}Edit Event{% else %}Create Event{% endif %} — Local Events
+{% endblock %}
 
 {% block content %}
 
-<div class="container mt-4">
+<div class="container py-4" style="max-width:640px;">
 
     <div class="card-cg">
         <div class="card-header-cg">
+            <i class="bi bi-calendar-event me-2"></i>
             {% if object %}Edit Event{% else %}Create Event{% endif %}
         </div>
 
@@ -14,24 +18,45 @@
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
 
-                
+                <div class="section-heading mb-3">
+                    <span class="dot"></span> Event Information
+                </div>
+
                 {% for field in form %}
                     <div class="mb-3">
-                        <label class="form-label-cg">{{ field.label }}</label>
+                        <label class="form-label-cg" for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
                         {{ field }}
+
+                        {% if field.help_text %}
+                            <div class="form-text small text-muted-cg mt-1">
+                                {{ field.help_text }}
+                            </div>
+                        {% endif %}
+
                         {% if field.errors %}
-                            <div class="text-danger small">{{ field.errors }}</div>
+                            <div class="mt-1 small" style="color:var(--accent);">
+                                {{ field.errors.0 }}
+                            </div>
                         {% endif %}
                     </div>
                 {% endfor %}
 
-                <button type="submit" class="btn btn-golden">
-                    Save
-                </button>
+                <hr class="divider-cg">
 
-                <a href="{% url 'localevents:event-list' %}" class="btn btn-outline-cg ms-2">
-                    Cancel
-                </a>
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-golden">
+                        <i class="bi bi-check-lg me-1"></i>
+                        {% if object %}Save Changes{% else %}Save Event{% endif %}
+                    </button>
+
+                    <a href="{% url 'localevents:event-list' %}" class="btn btn-outline-cg">
+                        Cancel
+                    </a>
+                </div>
+
             </form>
 
         </div>
