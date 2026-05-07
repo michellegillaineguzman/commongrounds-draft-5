@@ -78,6 +78,15 @@ class ProjectCreateView(RoleRequiredMixin, CreateView):
         super().__init__(**kwargs)
         self.repository = ProjectRepository()
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+
+        if not hasattr(request.user, 'profile') or request.user.profile.role != self.role:
+            return redirect('permission_denied')
+
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         project_data = form.cleaned_data
         project_data['creator'] = self.request.user.profile
