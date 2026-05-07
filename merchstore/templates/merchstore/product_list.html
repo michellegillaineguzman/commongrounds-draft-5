@@ -3,67 +3,51 @@
 
 {% block content %}
 
-<div class="page-header">
-    <div class="container">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-            <div>
-                <h1><i class="bi bi-shop me-2"></i>Merch Store</h1>
-                <p>Browse and buy community merchandise</p>
-            </div>
-            {% if user.is_authenticated %}
-                <div class="d-flex gap-2">
-                    <a href="{% url 'merchstore:cart' %}" class="btn btn-outline-cg">
-                        <i class="bi bi-cart3 me-1"></i> My Cart
-                    </a>
-                    <a href="{% url 'merchstore:transactions' %}" class="btn btn-outline-cg">
-                        <i class="bi bi-receipt me-1"></i> Sales
-                    </a>
-                    <a href="{% url 'merchstore:product-create' %}" class="btn btn-golden">
-                        <i class="bi bi-plus-lg me-1"></i> Add Product
-                    </a>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
+<div class="container mt-4">
 
-<div class="container">
+    <h1 class="mb-3">Merch Store</h1>
+    <a href="{% url 'home' %}" class="cg-soft">← Back to Home</a>
+
+    <div class="mt-3 mb-4">
+        <a href="{% url 'merchstore:product-create' %}" class="cg-cta">+ Add Product</a>
+    </div>
+
+    {% if user.is_authenticated %}
+        <div class="mt-3 mb-4 d-flex gap-2">
+            <a href="{% url 'merchstore:cart' %}" class="cg-soft ms-2">🛒 My Cart</a>
+            <a href="{% url 'merchstore:transactions' %}" class="cg-soft ms-2">🧾 Sales</a>
+        </div>
+    {% endif %}
 
     {% if user.is_authenticated and user_products %}
-        <div class="section-heading mb-3"><span class="dot"></span> Your Listings</div>
-        <div class="row g-3 mb-5">
+        <h2 class="mt-4 mb-3">Your Listings</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
             {% for product in user_products %}
-                <div class="col-sm-6 col-lg-4">
+                <div class="col">
                     <a href="{{ product.get_absolute_url }}" class="text-decoration-none">
-                        <div class="card-cg h-100">
-                            {% if product.product_image %}
-                                <div style="aspect-ratio:4/3;overflow:hidden;border-radius:14px 14px 0 0;">
+                        <div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+                            <div style="width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: #e9e4dc;">
+                                {% if product.product_image %}
                                     <img src="{{ product.product_image.url }}" alt="{{ product.name }}"
-                                         style="width:100%;height:100%;object-fit:cover;display:block;">
-                                </div>
-                            {% else %}
-                                <div style="aspect-ratio:4/3;background:var(--golden-light);border-radius:14px 14px 0 0;
-                                            display:flex;align-items:center;justify-content:center;">
-                                    <i class="bi bi-box-seam" style="font-size:2.5rem;color:var(--golden-dark);"></i>
-                                </div>
-                            {% endif %}
-                            <div class="card-body">
-                                <div class="fw-800 mb-1" style="font-size:1rem;">{{ product.name }}</div>
-                                {% if product.product_type %}
-                                    <span class="tag-cg mb-2 d-inline-block"><i class="bi bi-tag"></i> {{ product.product_type }}</span>
+                                         style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                                {% else %}
+                                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#999;">
+                                        <i class="bi bi-box-seam" style="font-size:3rem;"></i>
+                                    </div>
                                 {% endif %}
-                                <div class="d-flex align-items-center justify-content-between mt-2">
-                                    <span class="fw-800" style="color:var(--golden-dark);font-size:1.05rem;">₱{{ product.price }}</span>
-                                    <span class="status-badge
-                                        {% if product.status == 'Available' %}status-available
-                                        {% elif product.status == 'Out of stock' %}status-unavailable
-                                        {% else %}status-pending{% endif %}">
+                            </div>
+                            <div class="card-body" style="background:#fff;">
+                                <h5 class="card-title mb-1" style="color:#3b2f2f;font-weight:600;">{{ product.name }}</h5>
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    {% if product.product_type %}
+                                        <span class="tag-cg"><i class="bi bi-tag"></i> {{ product.product_type }}</span>
+                                    {% endif %}
+                                    <span class="tag-cg {% if product.status == 'Out of stock' %}tag-full{% elif product.status == 'On sale' %}tag-done{% endif %}">
                                         {{ product.status }}
                                     </span>
                                 </div>
-                                <div class="text-muted-cg mt-1" style="font-size:0.8rem;">
-                                    <i class="bi bi-layers me-1"></i>{{ product.stock }} in stock
-                                </div>
+                                <p class="card-text small text-muted mb-1"><i class="bi bi-tag"></i> ₱{{ product.price }}</p>
+                                <p class="card-text small text-muted"><i class="bi bi-layers"></i> {{ product.stock }} in stock</p>
                             </div>
                         </div>
                     </a>
@@ -72,57 +56,44 @@
         </div>
     {% endif %}
 
-    <div class="section-heading mb-3"><span class="dot"></span> All Products</div>
-
+    <h2 class="mt-4 mb-3">All Products</h2>
     {% if products %}
-        <div class="row g-3">
+        <div class="row row-cols-1 row-cols-md-3 g-4">
             {% for product in products %}
-                <div class="col-sm-6 col-lg-4">
+                <div class="col">
                     <a href="{{ product.get_absolute_url }}" class="text-decoration-none">
-                        <div class="card-cg h-100">
-                            {% if product.product_image %}
-                                <div style="aspect-ratio:4/3;overflow:hidden;border-radius:14px 14px 0 0;">
+                        <div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+                            <div style="width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: #e9e4dc;">
+                                {% if product.product_image %}
                                     <img src="{{ product.product_image.url }}" alt="{{ product.name }}"
-                                         style="width:100%;height:100%;object-fit:cover;display:block;">
-                                </div>
-                            {% else %}
-                                <div style="aspect-ratio:4/3;background:var(--golden-light);border-radius:14px 14px 0 0;
-                                            display:flex;align-items:center;justify-content:center;">
-                                    <i class="bi bi-box-seam" style="font-size:2.5rem;color:var(--golden-dark);"></i>
-                                </div>
-                            {% endif %}
-                            <div class="card-body">
-                                <div class="fw-800 mb-1" style="font-size:1rem;">{{ product.name }}</div>
-                                {% if product.product_type %}
-                                    <span class="tag-cg mb-2 d-inline-block"><i class="bi bi-tag"></i> {{ product.product_type }}</span>
+                                         style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                                {% else %}
+                                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#999;">
+                                        <i class="bi bi-box-seam" style="font-size:3rem;"></i>
+                                    </div>
                                 {% endif %}
-                                <div class="d-flex align-items-center justify-content-between mt-2">
-                                    <span class="fw-800" style="color:var(--golden-dark);font-size:1.05rem;">₱{{ product.price }}</span>
-                                    <span class="status-badge
-                                        {% if product.status == 'Available' %}status-available
-                                        {% elif product.status == 'Out of stock' %}status-unavailable
-                                        {% else %}status-pending{% endif %}">
+                            </div>
+                            <div class="card-body" style="background:#fff;">
+                                <h5 class="card-title mb-1" style="color:#3b2f2f;font-weight:600;">{{ product.name }}</h5>
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    {% if product.product_type %}
+                                        <span class="tag-cg"><i class="bi bi-tag"></i> {{ product.product_type }}</span>
+                                    {% endif %}
+                                    <span class="tag-cg {% if product.status == 'Out of stock' %}tag-full{% elif product.status == 'On sale' %}tag-done{% endif %}">
                                         {{ product.status }}
                                     </span>
                                 </div>
+                                <p class="card-text small text-muted mb-1"><i class="bi bi-tag"></i> ₱{{ product.price }}</p>
                             </div>
                         </div>
                     </a>
                 </div>
             {% empty %}
-                <div class="col-12">
-                    <div class="card-cg p-5 text-center">
-                        <i class="bi bi-shop" style="font-size:3rem;color:var(--golden);opacity:0.5;"></i>
-                        <p class="text-muted-cg mt-3 mb-0">No products available yet.</p>
-                    </div>
-                </div>
+                <p class="text-muted">No products available.</p>
             {% endfor %}
         </div>
     {% else %}
-        <div class="card-cg p-5 text-center">
-            <i class="bi bi-shop" style="font-size:3rem;color:var(--golden);opacity:0.5;"></i>
-            <p class="text-muted-cg mt-3 mb-0">No products available yet.</p>
-        </div>
+        <p class="text-muted">No products available.</p>
     {% endif %}
 
 </div>

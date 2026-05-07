@@ -6,7 +6,6 @@
 
     <div class="card-cg">
 
-        {# Event image — square crop, sits above the card header #}
         {% if event.image %}
             <div style="width: 100%; aspect-ratio: 3 / 1; overflow: hidden; border-radius: 12px 12px 0 0; background: #e9e4dc;">
                 <img
@@ -21,6 +20,7 @@
             {{ event.title }}
         </div>
 
+        
         <div class="card-body">
 
             <p class="text-secondary-cg mb-2">{{ event.description }}</p>
