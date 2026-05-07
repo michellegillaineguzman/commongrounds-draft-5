@@ -82,7 +82,7 @@ class ProjectCreateView(RoleRequiredMixin, CreateView):
         if not request.user.is_authenticated:
             return redirect('login')
 
-        if not hasattr(request.user, 'profile') or request.user.profile.role != self.role:
+        if not hasattr(request.user, 'profile') or not request.user.profile.has_role('Event Organizer'):
             return redirect('permission_denied')
 
         return super().dispatch(request, *args, **kwargs)
