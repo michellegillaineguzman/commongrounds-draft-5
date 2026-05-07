@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block title %}{{ event.title }} — Local Events{% endblock %}
 
 {% block content %}
@@ -65,7 +64,7 @@
 
                 {% if is_organizer %}
 
-                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                    <div class="d-flex gap-2 align-items-center">
 
                         <a href="{% url 'localevents:event-update' event.pk %}"
                            class="btn btn-outline-cg">
@@ -73,7 +72,7 @@
                         </a>
 
                         <span class="text-muted-cg" style="font-size:0.82rem;">
-                            You are the organizer.
+                            This is your event.
                         </span>
 
                     </div>
@@ -94,26 +93,17 @@
                             {% endif %}
 
                         </button>
+
                     </form>
 
                 {% endif %}
 
             {% else %}
 
-                {% if is_full %}
-
-                    <button class="btn btn-outline-cg" disabled>
-                        <i class="bi bi-x-circle me-1"></i> Full
-                    </button>
-
-                {% else %}
-
-                    <a href="{% url 'localevents:event-signup-form' event.pk %}"
-                       class="btn btn-golden">
-                        <i class="bi bi-check-circle me-1"></i> Sign Up
-                    </a>
-
-                {% endif %}
+                <a href="{% url 'localevents:event-signup-form' event.pk %}"
+                   class="btn btn-golden">
+                    <i class="bi bi-check-circle me-1"></i> Sign Up
+                </a>
 
             {% endif %}
 
