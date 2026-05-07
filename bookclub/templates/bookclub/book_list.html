@@ -7,15 +7,16 @@
     <a href="{% url 'home' %}" class="cg-soft">← Back to Home</a>
 
     <div class="mt-3 mb-4">
-        {# Check both .profile and .bookclub_profile for compatibility #}
-        {% if user.is_authenticated %}
-            {% if user.profile.role == 'Book Contributor' or user.bookclub_profile.role == 'Book Contributor' %}
+        {# Using the has_role logic from your mixin/profile #}
+        {% if user.is_authenticated and user.profile.has_role %}
+            {% if user.profile.role == 'Book Contributor' %}
                 <a href="{% url 'bookclub:book_create' %}" class="cg-cta">+ Contribute a Book</a>
             {% endif %}
         {% endif %}
     </div>
 
     {% if user.is_authenticated %}
+
         {% if contributed %}
             <h2 class="mt-4 mb-3">Your Contributions</h2>
             <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
@@ -30,9 +31,6 @@
                                     <h5 class="card-title mb-1" style="color:#3b2f2f;font-weight:600;">{{ b.title }}</h5>
                                     <div class="d-flex flex-wrap gap-1 mb-2">
                                         <span class="tag-cg"><i class="bi bi-person"></i> {{ b.author }}</span>
-                                        <span class="tag-cg {% if not b.available_to_borrow %}tag-full{% endif %}">
-                                            {% if b.available_to_borrow %}Available{% else %}Borrowed{% endif %}
-                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -41,6 +39,29 @@
                 {% endfor %}
             </div>
         {% endif %}
+
+        {% if my_borrows %}
+            <h2 class="mt-4 mb-3">Your Borrowed Books</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+                {% for record in my_borrows %}
+                    <div class="col">
+                        <a href="{% url 'bookclub:book_detail' record.book.pk %}" class="text-decoration-none">
+                            <div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+                                <div style="width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: #fdfaf3; display: flex; align-items: center; justify-content: center;">
+                                    <div style="color:#bcaf9b;"><i class="bi bi-journal-check" style="font-size:3rem;"></i></div>
+                                </div>
+                                <div class="card-body" style="background:#fff;">
+                                    <h5 class="card-title mb-1" style="color:#3b2f2f;font-weight:600;">{{ record.book.title }}</h5>
+                                    <p class="card-text small text-danger fw-bold"><i class="bi bi-clock"></i> Due: {{ record.due_date|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+    {% endif %} {# This closes the user.is_authenticated block #}
 
     <h2 class="mt-4 mb-3">All Books</h2>
     {% if all_books %}
@@ -66,5 +87,6 @@
     {% else %}
         <p class="text-muted">No books available.</p>
     {% endif %}
+
 </div>
 {% endblock %}
