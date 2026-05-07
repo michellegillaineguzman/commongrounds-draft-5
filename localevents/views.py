@@ -66,7 +66,7 @@ class EventCreateView(RoleRequiredMixin, CreateView):
         if not request.user.is_authenticated:
             return redirect('login')
 
-        if not request.user.profile.has_role('Event Organizer'):
+        if request.user.profile.role != 'Event Organizer':
             return redirect('permission_denied')
 
         return super().dispatch(request, *args, **kwargs)
