@@ -9,9 +9,7 @@
     <a href="{% url 'home' %}" class="cg-soft">← Back to Home</a>
 
     <div class="mt-3 mb-4">
-        {% if user.is_authenticated %}
-            <a href="{% url 'diyprojects:project_create' %}" class="cg-cta">+ Create Project</a>
-        {% endif %}
+        <a href="{% url 'diyprojects:project_create' %}" class="cg-cta">+ Create Project</a>
     </div>
 
     {% if user.is_authenticated %}
