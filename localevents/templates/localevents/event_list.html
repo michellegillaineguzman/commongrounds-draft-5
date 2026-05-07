@@ -4,38 +4,120 @@
 
 <div class="container mt-4">
 
-    <div class="card-cg">
-        <div class="card-header-cg">
-            {% if object %}Edit Event{% else %}Create Event{% endif %}
-        </div>
+    <h1 class="mb-3">Local Events</h1>
+    <a href="{% url 'home' %}" class="cg-soft">← Back to Home</a>
 
-        <div class="card-body">
+    <div class="mt-3 mb-4">
+        <a href="{% url 'localevents:event-create' %}" class="cg-cta">+ Create Event</a>
+    </div>
 
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
+    {% if user.is_authenticated %}
 
-                
-                {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label-cg">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                            <div class="text-danger small">{{ field.errors }}</div>
-                        {% endif %}
+        {% if created_events %}
+            <h2 class="mt-4 mb-3">Your Events</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+                {% for e in created_events %}
+                    <div class="col">
+                        <a href="{% url 'localevents:event-detail' e.pk %}" class="text-decoration-none">
+                            <div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+                                <div style="width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: #e9e4dc;">
+                                    {% if e.image %}
+                                        <img src="{{ e.image.url }}" alt="{{ e.title }}"
+                                             style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                                    {% else %}
+                                        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#999;">
+                                            <i class="bi bi-calendar-event" style="font-size:3rem;"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body" style="background:#fff;">
+                                    <h5 class="card-title mb-1" style="color:#3b2f2f;font-weight:600;">{{ e.title }}</h5>
+                                    <div class="d-flex flex-wrap gap-1 mb-2">
+                                        <span class="tag-cg"><i class="bi bi-geo-alt"></i> {{ e.location }}</span>
+                                        {% if e.category %}<span class="tag-cg"><i class="bi bi-tag"></i> {{ e.category }}</span>{% endif %}
+                                        <span class="tag-cg {% if e.status == 'Full' %}tag-full{% elif e.status == 'Cancelled' %}tag-cancelled{% elif e.status == 'Done' %}tag-done{% endif %}">{{ e.status }}</span>
+                                    </div>
+                                    <p class="card-text small text-muted mb-1"><i class="bi bi-clock"></i> {{ e.start_time|date:"M d, Y · g:i A" }}</p>
+                                    <p class="card-text small text-muted"><i class="bi bi-people"></i> {{ e.eventsignup_set.count }} / {{ e.capacity }} signed up</p>
+                                </div>
+                            </div>
+                        </a>
                     </div>
                 {% endfor %}
+            </div>
+        {% endif %}
 
-                <button type="submit" class="btn btn-golden">
-                    Save
-                </button>
+        {% if signed_events %}
+            <h2 class="mt-4 mb-3">Signed Up Events</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+                {% for e in signed_events %}
+                    <div class="col">
+                        <a href="{% url 'localevents:event-detail' e.pk %}" class="text-decoration-none">
+                            <div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+                                <div style="width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: #e9e4dc;">
+                                    {% if e.image %}
+                                        <img src="{{ e.image.url }}" alt="{{ e.title }}"
+                                             style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                                    {% else %}
+                                        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#999;">
+                                            <i class="bi bi-calendar-event" style="font-size:3rem;"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body" style="background:#fff;">
+                                    <h5 class="card-title mb-1" style="color:#3b2f2f;font-weight:600;">{{ e.title }}</h5>
+                                    <div class="d-flex flex-wrap gap-1 mb-2">
+                                        <span class="tag-cg"><i class="bi bi-geo-alt"></i> {{ e.location }}</span>
+                                        {% if e.category %}<span class="tag-cg"><i class="bi bi-tag"></i> {{ e.category }}</span>{% endif %}
+                                        <span class="tag-cg {% if e.status == 'Full' %}tag-full{% elif e.status == 'Cancelled' %}tag-cancelled{% elif e.status == 'Done' %}tag-done{% endif %}">{{ e.status }}</span>
+                                    </div>
+                                    <p class="card-text small text-muted mb-1"><i class="bi bi-clock"></i> {{ e.start_time|date:"M d, Y · g:i A" }}</p>
+                                    <p class="card-text small text-muted"><i class="bi bi-people"></i> {{ e.eventsignup_set.count }} / {{ e.capacity }} signed up</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-                <a href="{% url 'localevents:event-list' %}" class="btn btn-outline-cg ms-2">
-                    Cancel
-                </a>
-            </form>
+    {% endif %}
 
+    <h2 class="mt-4 mb-3">All Events</h2>
+    {% if events %}
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for event in events %}
+                <div class="col">
+                    <a href="{% url 'localevents:event-detail' event.pk %}" class="text-decoration-none">
+                        <div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+                            <div style="width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: #e9e4dc;">
+                                {% if event.image %}
+                                    <img src="{{ event.image.url }}" alt="{{ event.title }}"
+                                         style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                                {% else %}
+                                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#999;">
+                                        <i class="bi bi-calendar-event" style="font-size:3rem;"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-body" style="background:#fff;">
+                                <h5 class="card-title mb-1" style="color:#3b2f2f;font-weight:600;">{{ event.title }}</h5>
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    <span class="tag-cg"><i class="bi bi-geo-alt"></i> {{ event.location }}</span>
+                                    {% if event.category %}<span class="tag-cg"><i class="bi bi-tag"></i> {{ event.category }}</span>{% endif %}
+                                    <span class="tag-cg {% if event.status == 'Full' %}tag-full{% elif event.status == 'Cancelled' %}tag-cancelled{% elif event.status == 'Done' %}tag-done{% endif %}">{{ event.status }}</span>
+                                </div>
+                                <p class="card-text small text-muted mb-1"><i class="bi bi-clock"></i> {{ event.start_time|date:"M d, Y · g:i A" }}</p>
+                                <p class="card-text small text-muted"><i class="bi bi-people"></i> {{ event.eventsignup_set.count }} / {{ event.capacity }} signed up</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
         </div>
-    </div>
+    {% else %}
+        <p class="text-muted">No events available.</p>
+    {% endif %}
 
 </div>
 
