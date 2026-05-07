@@ -109,3 +109,5 @@ LOGIN_URL = 'login'
 
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
+
+CSRF_TRUSTED_ORIGINS = ['https://commongrounds-5-production.up.railway.app']
