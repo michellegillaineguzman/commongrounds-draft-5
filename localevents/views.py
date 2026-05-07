@@ -17,7 +17,7 @@ class EventListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        if self.request.user.is_authenticated:
+        if self.request.user.is_authenticated and hasattr(self.request.user, 'profile'):
             profile = self.request.user.profile
 
             created = Event.objects.filter(organizer=profile).distinct()
@@ -47,12 +47,20 @@ class EventDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         event = self.object
 
-        if self.request.user.is_authenticated:
-            context['is_organizer'] = self.request.user.profile in event.organizer.all()
+        if (
+            self.request.user.is_authenticated
+            and hasattr(self.request.user, 'profile')
+        ):
+            context['is_organizer'] = (
+                self.request.user.profile in event.organizer.all()
+            )
         else:
             context['is_organizer'] = False
 
-        context['is_full'] = event.eventsignup_set.count() >= event.capacity
+        context['is_full'] = (
+            event.eventsignup_set.count() >= event.capacity
+        )
+
         return context
 
 
@@ -66,7 +74,10 @@ class EventCreateView(RoleRequiredMixin, CreateView):
         if not request.user.is_authenticated:
             return redirect('login')
 
-        if request.user.profile.role != 'Event Organizer':
+        if (
+            not hasattr(request.user, 'profile')
+            or not request.user.profile.has_role('Event Organizer')
+        ):
             return redirect('permission_denied')
 
         return super().dispatch(request, *args, **kwargs)
@@ -77,7 +88,10 @@ class EventCreateView(RoleRequiredMixin, CreateView):
         return response
 
     def get_success_url(self):
-        return reverse('localevents:event-detail', kwargs={'pk': self.object.pk})
+        return reverse(
+            'localevents:event-detail',
+            kwargs={'pk': self.object.pk}
+        )
 
 
 class EventUpdateView(RoleRequiredMixin, UpdateView):
@@ -88,9 +102,17 @@ class EventUpdateView(RoleRequiredMixin, UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         event = get_object_or_404(Event, pk=kwargs['pk'])
-        if request.user.is_authenticated:
-            if request.user.profile not in event.organizer.all():
-                return redirect('permission_denied')
+
+        if not request.user.is_authenticated:
+            return redirect('login')
+
+        if (
+            not hasattr(request.user, 'profile')
+            or not request.user.profile.has_role('Event Organizer')
+            or request.user.profile not in event.organizer.all()
+        ):
+            return redirect('permission_denied')
+
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -102,10 +124,14 @@ class EventUpdateView(RoleRequiredMixin, UpdateView):
             self.object.status = 'Available'
 
         self.object.save()
+
         return redirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse('localevents:event-detail', kwargs={'pk': self.object.pk})
+        return reverse(
+            'localevents:event-detail',
+            kwargs={'pk': self.object.pk}
+        )
 
 
 class BaseSignupView(View):
@@ -132,23 +158,31 @@ class BaseSignupView(View):
     def check_ownership(self, event, user):
         if not user.is_authenticated:
             return True
+
+        if not hasattr(user, 'profile'):
+            return True
+
         return user.profile not in event.organizer.all()
 
     def create_signup(self, event, user):
         raise NotImplementedError
 
     def get_redirect_url(self, event):
-        return reverse('localevents:event-detail', kwargs={'pk': event.pk})
+        return reverse(
+            'localevents:event-detail',
+            kwargs={'pk': event.pk}
+        )
 
 
 class EventSignupView(BaseSignupView):
 
     def create_signup(self, event, user):
-        if user.is_authenticated:
+        if user.is_authenticated and hasattr(user, 'profile'):
             already_signed_up = EventSignup.objects.filter(
                 event=event,
                 user_registrant=user.profile
             ).exists()
+
             if not already_signed_up:
                 EventSignup.objects.create(
                     event=event,
@@ -168,7 +202,12 @@ class EventSignupFormView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['event'] = get_object_or_404(Event, pk=self.kwargs['pk'])
+
+        context['event'] = get_object_or_404(
+            Event,
+            pk=self.kwargs['pk']
+        )
+
         return context
 
     def form_valid(self, form):
@@ -181,4 +220,5 @@ class EventSignupFormView(FormView):
             event=event,
             new_registrant=form.cleaned_data['name']
         )
+
         return redirect('localevents:event-detail', pk=event.pk)
