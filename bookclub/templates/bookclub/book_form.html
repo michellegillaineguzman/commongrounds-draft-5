@@ -1,41 +1,20 @@
 {% extends "base.html" %}
 
-{% block title %}{% if object %}Edit{% else %}Create{% endif %} Book{% endblock %}
-
 {% block content %}
 <div class="container mt-4 mb-5">
     <div class="card-cg">
-        <div class="card-header-cg">
-            {% if object %}Edit Book{% else %}Create Book{% endif %}
-        </div>
+        <div class="card-header-cg">{% if form.instance.pk %}Edit Book{% else %}Contribute a Book{% endif %}</div>
         <div class="card-body">
-            <form method="POST">
-                {% csrf_token %}
-
-                <h2 class="section-heading">
-                    <span class="dot"></span>
-                    Book Information
-                </h2>
-
+            <form method="post">{% csrf_token %}
                 {% for field in form %}
-                <div class="mb-3">
-                    <label class="form-label-cg">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.help_text %}
-                        <div class="form-text small text-muted-cg">{{ field.help_text }}</div>
-                    {% endif %}
-                    {% for error in field.errors %}
-                        <div class="text-danger small">{{ error }}</div>
-                    {% endfor %}
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label-cg">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+                    </div>
                 {% endfor %}
-
-                <hr class="divider-cg">
-
                 <div class="mt-4">
-                    <button type="submit" class="btn btn-golden">
-                        {% if object %}Update Book{% else %}Save Book{% endif %}
-                    </button>
+                    <button type="submit" class="btn btn-golden">Save</button>
                     <a href="{% url 'bookclub:book_list' %}" class="btn btn-outline-cg ms-2">Cancel</a>
                 </div>
             </form>
