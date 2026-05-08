@@ -1,4 +1,3 @@
-from accounts.models import Profile
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Case, IntegerField, Value, When
 from django.forms import inlineformset_factory
@@ -21,11 +20,13 @@ JobFormSet = inlineformset_factory(
 
 
 def user_is_commission_maker(user):
-    return (
-        user.is_authenticated
-        and hasattr(user, "profile")
-        and user.profile.role == Profile.COMMISSION_MAKER
-    )
+    if not user.is_authenticated:
+        return False
+
+    if not hasattr(user, "profile"):
+        return False
+
+    return user.profile.has_role("Commission Maker")
 
 
 def sorted_commissions(queryset):
