@@ -1,3 +1,4 @@
+from accounts.models import Profile
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Case, IntegerField, Value, When
 from django.forms import inlineformset_factory
@@ -22,8 +23,8 @@ JobFormSet = inlineformset_factory(
 def user_is_commission_maker(user):
     return (
         user.is_authenticated
-        and hasattr(user, 'profile')
-        and user.profile.has_role('Commission Maker')
+        and hasattr(user, "profile")
+        and user.profile.role == Profile.COMMISSION_MAKER
     )
 
 
@@ -149,6 +150,12 @@ class CommissionCreateView(LoginRequiredMixin, CreateView):
     template_name = "commissions/request_form.html"
 
     def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+
+        if not hasattr(request.user, "profile"):
+            return redirect("permission_denied")
+
         if not user_is_commission_maker(request.user):
             return redirect("permission_denied")
 
@@ -189,6 +196,12 @@ class CommissionUpdateView(LoginRequiredMixin, UpdateView):
     context_object_name = "commission"
 
     def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+
+        if not hasattr(request.user, "profile"):
+            return redirect("permission_denied")
+
         commission = self.get_object()
 
         if not user_is_commission_maker(request.user):

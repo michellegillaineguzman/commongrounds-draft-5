@@ -9,13 +9,11 @@
 
     <a href="{% url 'home' %}" class="cg-soft">← Back to Home</a>
 
-    {% if user.is_authenticated %}
-        <div class="mt-3 mb-4">
-            <a href="{% url 'commissions:request_create' %}" class="cg-cta">
-                + Create Commission
-            </a>
-        </div>
-    {% endif %}
+    <div class="mt-3 mb-4">
+        <a href="{% url 'commissions:request_create' %}" class="cg-cta">
+            + Create Commission
+        </a>
+    </div>
 
     {% if user.is_authenticated %}
         <h2 class="mt-4">Commissions You Created</h2>
