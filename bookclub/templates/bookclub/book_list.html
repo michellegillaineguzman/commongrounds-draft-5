@@ -7,7 +7,7 @@
     <a href="{% url 'home' %}" class="cg-soft">← Back to Home</a>
 
     <div class="mt-3 mb-4">
-        {% if user.is_authenticated and user.profile.is_book_contributor %}
+        {% if user.is_authenticated %}
             <a href="{% url 'bookclub:book_create' %}" class="cg-cta">+ Contribute a Book</a>
         {% endif %}
     </div>
